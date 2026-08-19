@@ -28,6 +28,11 @@ export interface ExpiringInitialPasswordChangeSession {
   expiresAt: number;
 }
 
+export interface InitialPasswordChangeFailure {
+  terminal: boolean;
+  message: string;
+}
+
 export function getInitialPasswordRuleState(password: string): InitialPasswordRuleState {
   return {
     minLength: password.length >= 12,
@@ -59,13 +64,30 @@ export function getInitialPasswordRuleStatusText(satisfied: boolean): '已满足
   return satisfied ? '已满足' : '未满足';
 }
 
+export function classifyInitialPasswordChangeFailure(
+  status: number | undefined,
+  serverMessage: unknown,
+  localMessage: string,
+): InitialPasswordChangeFailure {
+  const terminal = status === 401 || status === 403 || status === 409;
+  const message = typeof serverMessage === 'string' && serverMessage.trim()
+    ? serverMessage
+    : /[\u3400-\u9fff]/.test(localMessage)
+      ? localMessage
+      : '密码修改失败，请稍后重试';
+  return { terminal, message };
+}
+
 export function isPasswordChangeRequiredResponse(value: unknown): value is PasswordChangeRequiredResponse {
   if (!value || typeof value !== 'object') return false;
   const response = value as Record<string, unknown>;
   return response.password_change_required === true
     && typeof response.password_change_token === 'string'
     && response.password_change_token.length > 0
-    && response.expires_in === 600;
+    && typeof response.expires_in === 'number'
+    && Number.isInteger(response.expires_in)
+    && response.expires_in > 0
+    && response.expires_in <= 600;
 }
 
 export function isAuthenticatedResponse(value: unknown): value is AuthenticatedResponse {

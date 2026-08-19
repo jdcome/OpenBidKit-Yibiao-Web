@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import {
   canSubmitInitialPasswordChange,
+  classifyInitialPasswordChangeFailure,
   getInitialPasswordRuleState,
   getInitialPasswordRuleStatusText,
   preventInitialPasswordDialogDismiss,
@@ -13,6 +14,7 @@ interface InitialPasswordChangeDialogProps {
   expiresAt: number | null;
   onSubmit(newPassword: string, confirmPassword: string): Promise<void>;
   onExpired(): void;
+  onTerminalError(message: string): void;
 }
 
 const RULE_LABELS = [
@@ -23,7 +25,13 @@ const RULE_LABELS = [
   ['special', '包含特殊字符'],
 ] as const;
 
-function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: InitialPasswordChangeDialogProps) {
+function InitialPasswordChangeDialog({
+  open,
+  expiresAt,
+  onSubmit,
+  onExpired,
+  onTerminalError,
+}: InitialPasswordChangeDialogProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -80,19 +88,16 @@ function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: I
       await onSubmit(newPassword, confirmPassword);
     } catch (submitError) {
       const response = (submitError as { response?: { status?: number; data?: { error?: unknown } } })?.response;
-      if (response?.status === 401) {
-        onExpired();
+      const failure = classifyInitialPasswordChangeFailure(
+        response?.status,
+        response?.data?.error,
+        submitError instanceof Error ? submitError.message : '',
+      );
+      if (failure.terminal) {
+        onTerminalError(failure.message);
         return;
       }
-      const serverMessage = response?.data?.error;
-      const localMessage = submitError instanceof Error ? submitError.message : '';
-      setError(
-        typeof serverMessage === 'string' && serverMessage.trim()
-          ? serverMessage
-          : /[\u3400-\u9fff]/.test(localMessage)
-            ? localMessage
-            : '密码修改失败，请稍后重试',
-      );
+      setError(failure.message);
     } finally {
       setBusy(false);
     }

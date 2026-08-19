@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import Fastify from 'fastify';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 process.env.JWT_SECRET = 'test-only-secret-that-is-at-least-32-characters';
 const { authRoutes } = await import('./auth');
-const { signInitialPasswordChangeToken } = await import('../auth/middleware');
+const { signInitialPasswordChangeToken, signToken } = await import('../auth/middleware');
 
 interface UserRow {
   id: number;
@@ -180,4 +181,51 @@ test('强密码修改成功并直接返回正式令牌且不能重放', async (t
     payload: { newPassword: 'Another-Pass2!', confirmPassword: 'Another-Pass2!' },
   });
   assert.equal(replay.statusCode, 409);
+});
+
+test('有效正式访问令牌用于初始改密时返回 403', async (t) => {
+  const user = await makeUser();
+  const { app } = await buildApp(user);
+  t.after(() => app.close());
+  const response = await app.inject({
+    method: 'POST',
+    url: '/api/change-initial-password',
+    headers: {
+      authorization: `Bearer ${signToken({ id: user.id, username: user.username, role: user.role })}`,
+    },
+    payload: { newPassword: 'Strong-Pass1!', confirmPassword: 'Strong-Pass1!' },
+  });
+
+  assert.equal(response.statusCode, 403);
+  assert.equal(response.json().error, '该凭证不能用于初始密码修改');
+});
+
+test('无效、过期或未知用途的令牌用于初始改密时返回 401', async (t) => {
+  const user = await makeUser();
+  const { app } = await buildApp(user);
+  t.after(() => app.close());
+  const tokens = [
+    'not-a-jwt',
+    jwt.sign(
+      { id: user.id, username: user.username, role: user.role, purpose: 'initial-password-change' },
+      process.env.JWT_SECRET as string,
+      { expiresIn: -1 },
+    ),
+    jwt.sign(
+      { id: user.id, username: user.username, role: user.role, purpose: 'service-token' },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '10m' },
+    ),
+  ];
+
+  for (const token of tokens) {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/change-initial-password',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { newPassword: 'Strong-Pass1!', confirmPassword: 'Strong-Pass1!' },
+    });
+    assert.equal(response.statusCode, 401);
+    assert.equal(response.json().error, '改密凭证无效或已过期，请重新登录');
+  }
 });

@@ -36,15 +36,19 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const initialPasswordExpiryRef = useRef<number | null>(null);
 
-  const onInitialPasswordExpired = useCallback(() => {
+  const returnInitialPasswordChangeToLogin = useCallback((message: string) => {
     initialPasswordExpiryRef.current = null;
     clearInitialPasswordChange();
     setMode('login');
     setPassword('');
     setConfirm('');
     setInfo('');
-    setError('改密凭证已过期，请重新登录');
+    setError(message);
   }, [clearInitialPasswordChange]);
+
+  const onInitialPasswordExpired = useCallback(() => {
+    returnInitialPasswordChangeToLogin('改密凭证已过期，请重新登录');
+  }, [returnInitialPasswordChangeToLogin]);
 
   useEffect(() => {
     if (initialPasswordChange) {
@@ -229,6 +233,7 @@ export default function LoginPage() {
         expiresAt={initialPasswordChange?.expiresAt ?? null}
         onSubmit={changeInitialPassword}
         onExpired={onInitialPasswordExpired}
+        onTerminalError={returnInitialPasswordChangeToLogin}
       />
     </div>
   );

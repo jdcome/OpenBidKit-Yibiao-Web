@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   canSubmitInitialPasswordChange,
+  classifyInitialPasswordChangeFailure,
   getInitialPasswordRuleState,
   getInitialPasswordRuleStatusText,
   isActiveInitialPasswordChangeSession,
@@ -32,6 +33,11 @@ test('只接受完整的强制改密响应', () => {
     password_change_required: true,
     password_change_token: 'token',
     expires_in: 1,
+  }), true);
+  assert.equal(isPasswordChangeRequiredResponse({
+    password_change_required: true,
+    password_change_token: 'token',
+    expires_in: 0,
   }), false);
   assert.equal(isPasswordChangeRequiredResponse({
     password_change_required: true,
@@ -94,4 +100,24 @@ test('关闭或切换强制改密会话时必须清理敏感状态', () => {
 test('密码规则状态提供明确的可访问公告文本', () => {
   assert.equal(getInitialPasswordRuleStatusText(true), '已满足');
   assert.equal(getInitialPasswordRuleStatusText(false), '未满足');
+});
+
+test('终止型改密失败返回登录页并保留服务端消息', () => {
+  for (const status of [401, 403, 409]) {
+    assert.deepEqual(
+      classifyInitialPasswordChangeFailure(status, `服务端消息 ${status}`, ''),
+      { terminal: true, message: `服务端消息 ${status}` },
+    );
+  }
+});
+
+test('400 和网络错误保留在弹窗内重试', () => {
+  assert.deepEqual(
+    classifyInitialPasswordChangeFailure(400, '强度不符合要求', ''),
+    { terminal: false, message: '强度不符合要求' },
+  );
+  assert.deepEqual(
+    classifyInitialPasswordChangeFailure(undefined, undefined, 'Network Error'),
+    { terminal: false, message: '密码修改失败，请稍后重试' },
+  );
 });

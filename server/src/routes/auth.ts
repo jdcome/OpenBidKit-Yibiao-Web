@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import {
   signInitialPasswordChangeToken,
   signToken,
+  TokenPurposeError,
   verifyInitialPasswordChangeToken,
 } from '../auth/middleware';
 import type { JwtPayload } from '../auth/middleware';
@@ -92,7 +93,10 @@ export async function authRoutes(app: FastifyInstance, _opts: FastifyPluginOptio
     let payload: JwtPayload;
     try {
       payload = verifyInitialPasswordChangeToken(header.slice(7));
-    } catch {
+    } catch (error) {
+      if (error instanceof TokenPurposeError && error.code === 'access-token-not-allowed') {
+        return reply.code(403).send({ error: '该凭证不能用于初始密码修改' });
+      }
       return reply.code(401).send({ error: '改密凭证无效或已过期，请重新登录' });
     }
 

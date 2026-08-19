@@ -18,6 +18,15 @@ export interface JwtPayload {
   purpose?: JwtPurpose;
 }
 
+export class TokenPurposeError extends Error {
+  constructor(public readonly code: 'access-token-not-allowed' | 'invalid-token-purpose') {
+    super(code === 'access-token-not-allowed'
+      ? 'access token cannot be used for initial password change'
+      : 'token purpose is invalid');
+    this.name = 'TokenPurposeError';
+  }
+}
+
 export function signToken(payload: Omit<JwtPayload, 'purpose'>): string {
   return jwt.sign({ ...payload, purpose: 'access' }, JWT_SECRET, { expiresIn: '7d' });
 }
@@ -27,19 +36,22 @@ export function signInitialPasswordChangeToken(payload: Omit<JwtPayload, 'purpos
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
-  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
-  if (payload.purpose === 'initial-password-change') {
-    throw new Error('token 用途无效');
+  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload & { purpose?: unknown };
+  if (payload.purpose !== undefined && payload.purpose !== 'access') {
+    throw new TokenPurposeError('invalid-token-purpose');
   }
-  return payload;
+  return payload as JwtPayload;
 }
 
 export function verifyInitialPasswordChangeToken(token: string): JwtPayload {
-  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
-  if (payload.purpose !== 'initial-password-change') {
-    throw new Error('token 用途无效');
+  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload & { purpose?: unknown };
+  if (payload.purpose === undefined || payload.purpose === 'access') {
+    throw new TokenPurposeError('access-token-not-allowed');
   }
-  return payload;
+  if (payload.purpose !== 'initial-password-change') {
+    throw new TokenPurposeError('invalid-token-purpose');
+  }
+  return payload as JwtPayload;
 }
 
 // onRequest hook：校验 Authorization: Bearer <token>，失败即 401。

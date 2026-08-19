@@ -26,6 +26,17 @@ test('旧正式令牌没有 purpose 时继续兼容', async () => {
   assert.equal(auth.verifyAccessToken(token).username, 'legacy');
 });
 
+test('未知 purpose 的签名令牌不能作为正式访问令牌', async () => {
+  const auth = await import('./middleware');
+  const token = jwt.sign(
+    { id: 3, username: 'unexpected', role: 'user', purpose: 'service-token' },
+    process.env.JWT_SECRET as string,
+    { expiresIn: '7d' },
+  );
+
+  assert.throws(() => auth.verifyAccessToken(token));
+});
+
 test('正式令牌不能用于初始改密', async () => {
   const auth = await import('./middleware');
   const token = auth.signToken({ id: 1, username: 'admin', role: 'admin' });
