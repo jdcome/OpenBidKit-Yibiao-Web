@@ -9,4 +9,4 @@
 5. 涉及权限、项目作用域或鉴权时补充管理员与普通用户双向验证；
 6. Pull Request 说明修改内容、测试命令和 AGPL/NOTICE 影响。
 
-所有贡献均按 GNU AGPL-3.0-only 提供。不得删除上游 `NOTICE` 或作者归属。
+所有贡献均按 GNU AGPL-3.0-only 提供。
