@@ -136,7 +136,9 @@ npm run dev
 
 ## 开源义务
 
-本项目使用 GNU Affero General Public License v3.0 only。
+本项目仅使用 GNU Affero通用公共许可证v3.0‑only。
+
+> 重要提示：若将本软件部署为Web网络服务提供访问，依据AGPL‑3.0第13条，应当向所有网络访问用户提供当前运行版本完整的对应源码。
 
 详见 [AGPL 合规说明](docs/AGPL-COMPLIANCE.md)。
 
@@ -147,4 +149,4 @@ npm run dev
 
 ## 许可证与担保
 
-本软件按 GNU AGPL-3.0-only 提供，不附带任何担保。原项目的作者归属以 [NOTICE](NOTICE) 为准。
+本软件按 GNU AGPL‑3.0‑only 提供，**不附带任何担保**。。原项目的作者归属以 [NOTICE](NOTICE) 为准。
