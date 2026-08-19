@@ -42,8 +42,7 @@ Copy-Item server\.env.example server\.env
 编辑 `server/.env`：
 
 - 将 `DATABASE_URL` 改为本地数据库连接；
-- 为 `JWT_SECRET` 生成至少 32 个随机字符；
-- 为 `INITIAL_ADMIN_PASSWORD` 设置至少 12 位的随机密码。
+- 为 `JWT_SECRET` 生成至少 32 个随机字符。
 
 真实 `.env` 已被 Git 忽略，禁止提交。
 
@@ -76,6 +75,19 @@ npm run dev
 ```
 
 浏览器打开 `http://127.0.0.1:5173`。
+
+### 4. 完成首次管理员强制改密
+
+全新安装必须按以下顺序完成，随后才能将服务暴露到不受信任的网络：
+
+1. 在 `server/` 目录依次运行 Prisma generate、schema push 和 seed（即上一步中的 `pnpm exec prisma generate`、`pnpm exec prisma db push`、`pnpm run db:seed`）；
+2. 打开 Web 登录页；
+3. 使用 `admin/admin` 登录一次；
+4. 设置至少 12 位、且同时包含大写字母、小写字母、数字和特殊字符的新密码；
+5. 确认系统进入应用，并确认 `admin/admin` 已无法再次登录；
+6. 在将服务暴露到不受信任的网络前完成以上步骤。
+
+重复运行 seed 不会重置已存在管理员的密码。
 
 ## 生产部署
 

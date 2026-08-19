@@ -20,7 +20,9 @@ Browser
 
 ## 鉴权与权限
 
-- JWT 会话，用户角色为 `admin` 或 `user`。
+- JWT 分为两种用途：`purpose=access` 的正式会话令牌有效期为 7 天，用于常规受保护接口；`purpose=initial-password-change` 的受限令牌有效期为 10 分钟，只能用于首次改密接口，不能访问业务接口。为兼容升级，旧正式令牌未携带 `purpose` 时仍按正式会话处理。
+- `mustChangePassword` 是用户的首次改密状态：全新安装时创建的默认管理员为 `true`，首次改密成功后原子更新为 `false`；已有用户和普通注册用户默认为 `false`。状态为 `true` 时不会签发正式会话令牌。
+- 用户角色为 `admin` 或 `user`。
 - 普通用户通过模块列表获得功能权限。
 - 用户管理与提示词写操作仅管理员可用。
 - 项目作用域 API 使用 `X-Project-Id`，服务端校验项目归属。

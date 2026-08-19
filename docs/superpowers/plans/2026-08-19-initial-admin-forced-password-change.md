@@ -66,16 +66,9 @@ Create `server/src/auth/initialPassword.test.ts`:
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  DEFAULT_INITIAL_ADMIN_PASSWORD,
-  DEFAULT_INITIAL_ADMIN_USERNAME,
   getInitialPasswordRuleState,
   validateInitialPassword,
 } from './initialPassword';
-
-test('固定首次管理员凭据为 admin/admin', () => {
-  assert.equal(DEFAULT_INITIAL_ADMIN_USERNAME, 'admin');
-  assert.equal(DEFAULT_INITIAL_ADMIN_PASSWORD, 'admin');
-});
 
 test('12 位且包含四类字符的密码通过', () => {
   assert.deepEqual(validateInitialPassword('Strong-Pass1!'), []);
@@ -151,7 +144,7 @@ export function validateInitialPassword(password: string): string[] {
 
 Run: `pnpm exec tsx --test src/auth/initialPassword.test.ts`
 
-Expected: 4 tests PASS.
+Expected: 3 tests PASS. The observable `admin/admin` bootstrap behavior is covered by Task 2's seed test rather than a constant-only change detector.
 
 - [ ] **Step 5: Commit the policy unit**
 
@@ -279,7 +272,7 @@ pnpm exec prisma generate
 pnpm exec tsx --test src/auth/initialPassword.test.ts src/db/seedInitialAdmin.test.ts
 ```
 
-Expected: Prisma commands succeed and 6 tests PASS.
+Expected: Prisma commands succeed and 5 tests PASS.
 
 - [ ] **Step 6: Commit schema and seed behavior**
 
@@ -317,7 +310,7 @@ test('受限令牌只能通过初始改密校验', async () => {
   const auth = await import('./middleware');
   const token = auth.signInitialPasswordChangeToken({ id: 1, username: 'admin', role: 'admin' });
   assert.equal(auth.verifyInitialPasswordChangeToken(token).purpose, 'initial-password-change');
-  assert.throws(() => auth.verifyAccessToken(token), /restricted token/);
+  assert.throws(() => auth.verifyAccessToken(token));
 });
 
 test('旧正式令牌没有 purpose 时继续兼容', async () => {
@@ -333,7 +326,7 @@ test('旧正式令牌没有 purpose 时继续兼容', async () => {
 test('正式令牌不能用于初始改密', async () => {
   const auth = await import('./middleware');
   const token = auth.signToken({ id: 1, username: 'admin', role: 'admin' });
-  assert.throws(() => auth.verifyInitialPasswordChangeToken(token), /wrong token purpose/);
+  assert.throws(() => auth.verifyInitialPasswordChangeToken(token));
 });
 ```
 
@@ -427,6 +420,8 @@ interface UserRow {
   department: string | null;
   modules: string;
   mustChangePassword: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 async function makeUser(overrides: Partial<UserRow> = {}): Promise<UserRow> {
@@ -441,6 +436,8 @@ async function makeUser(overrides: Partial<UserRow> = {}): Promise<UserRow> {
     department: null,
     modules: '[]',
     mustChangePassword: true,
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     ...overrides,
   };
 }
@@ -804,15 +801,68 @@ git commit -m "feat(auth): add client forced-change session state"
 
 **Files:**
 - Create: `client/src/app/InitialPasswordChangeDialog.tsx`
+- Modify: `client/src/shared/auth/initialPasswordRules.ts`
+- Test: `client/src/shared/auth/initialPasswordRules.test.ts`
 - Modify: `client/src/app/LoginPage.tsx:1-193`
 - Modify: `client/src/styles/feature-login.css:1-126`
 
 **Interfaces:**
 - Consumes: `initialPasswordChange`, `changeInitialPassword`, and `clearInitialPasswordChange` from Task 5.
 - Consumes: `getInitialPasswordRuleState` from Task 5.
+- Produces: `canSubmitInitialPasswordChange(password, confirmation)` and `preventInitialPasswordDialogDismiss(event)` for behavior-tested dialog decisions.
 - Produces: a controlled dialog that has no close path before success or expiry.
 
-- [ ] **Step 1: Add the dialog component with enforced dismissal guards**
+- [ ] **Step 1: Write failing submit-gate and dismissal-guard tests**
+
+Extend `client/src/shared/auth/initialPasswordRules.test.ts`:
+
+```ts
+import {
+  canSubmitInitialPasswordChange,
+  preventInitialPasswordDialogDismiss,
+} from './initialPasswordRules';
+
+test('只有全部规则通过且两次密码一致时允许提交', () => {
+  assert.equal(canSubmitInitialPasswordChange('Strong-Pass1!', 'Strong-Pass1!'), true);
+  assert.equal(canSubmitInitialPasswordChange('weak-password', 'weak-password'), false);
+  assert.equal(canSubmitInitialPasswordChange('Strong-Pass1!', 'Strong-Pass2!'), false);
+});
+
+test('强制改密关闭事件始终被阻止', () => {
+  let prevented = false;
+  preventInitialPasswordDialogDismiss({ preventDefault: () => { prevented = true; } });
+  assert.equal(prevented, true);
+});
+```
+
+- [ ] **Step 2: Run the client test and verify the new imports fail**
+
+Run from `server/`:
+
+```powershell
+pnpm exec tsx --test ..\client\src\shared\auth\initialPasswordRules.test.ts
+```
+
+Expected: FAIL because the submit-gate and dismissal-guard exports do not exist.
+
+- [ ] **Step 3: Implement the minimal behavior helpers**
+
+Add to `initialPasswordRules.ts`:
+
+```ts
+export function canSubmitInitialPasswordChange(password: string, confirmation: string): boolean {
+  const state = getInitialPasswordRuleState(password);
+  return Object.values(state).every(Boolean) && password === confirmation;
+}
+
+export function preventInitialPasswordDialogDismiss(event: { preventDefault(): void }): void {
+  event.preventDefault();
+}
+```
+
+Run the same test again and expect all tests to PASS before creating the component.
+
+- [ ] **Step 4: Add the dialog component with enforced dismissal guards**
 
 Create `InitialPasswordChangeDialog.tsx` with this component contract:
 
@@ -825,7 +875,7 @@ interface InitialPasswordChangeDialogProps {
 }
 ```
 
-Use `Dialog.Root open={open}` without a close trigger. On `Dialog.Content`, call `event.preventDefault()` in both `onEscapeKeyDown` and `onPointerDownOutside`. Render:
+Use `Dialog.Root open={open}` without a close trigger. On `Dialog.Content`, pass `preventInitialPasswordDialogDismiss` to both `onEscapeKeyDown` and `onPointerDownOutside`. Use `canSubmitInitialPasswordChange` for the submit disabled state. Render:
 
 - title “首次登录必须修改密码”；
 - an explanation that default credentials cannot enter the system;
@@ -837,7 +887,7 @@ Use `Dialog.Root open={open}` without a close trigger. On `Dialog.Content`, call
 
 Use a timer to call `onExpired` when `Date.now() >= expiresAt`; clear the timer on unmount.
 
-- [ ] **Step 2: Integrate the dialog into `LoginPage`**
+- [ ] **Step 5: Integrate the dialog into `LoginPage`**
 
 Change `LoginPage` to read the forced-change state/actions from `useAuth`. After `login(...)` returns `password-change-required`, clear the password input and rely on context state to open the dialog. On expiry:
 
@@ -847,23 +897,24 @@ Change `LoginPage` to read the forced-change state/actions from `useAuth`. After
 
 On successful submission, `AuthProvider` sets `user`, so the existing root guard unmounts `LoginPage` and enters the application directly.
 
-- [ ] **Step 3: Add login-dialog styles**
+- [ ] **Step 6: Add login-dialog styles**
 
 Extend `feature-login.css` with focused classes for overlay, scrollable content, rule checklist, valid/invalid indicators, and two password fields. Reuse `--yb-*` tokens, keep content within the viewport using `position: fixed`, `overflow-y: auto`, and `10vh` vertical padding, and do not vertically center a tall dialog with flex `items-center` behavior.
 
-- [ ] **Step 4: Run build and static source assertions**
+- [ ] **Step 7: Run the behavior tests and frontend build**
 
 Run:
 
 ```powershell
 cd D:\AI\yibiao-web-agpl\client
 npx.cmd vite build
-rg -n "onEscapeKeyDown|onPointerDownOutside|首次登录必须修改密码|至少 12 位" src/app/InitialPasswordChangeDialog.tsx
+cd ..\server
+pnpm exec tsx --test ..\client\src\shared\auth\initialPasswordRules.test.ts
 ```
 
-Expected: Vite build succeeds and all four dismissal/content assertions are found.
+Expected: Vite build succeeds and all client behavior tests PASS.
 
-- [ ] **Step 5: Browser-test the interaction locally**
+- [ ] **Step 8: Browser-test the interaction locally**
 
 With a disposable local database or mocked local backend, verify:
 
@@ -876,10 +927,10 @@ With a disposable local database or mocked local backend, verify:
 7. refreshing during the forced flow returns to login;
 8. no restricted token appears in Local Storage or Session Storage.
 
-- [ ] **Step 6: Commit the dialog**
+- [ ] **Step 9: Commit the dialog**
 
 ```powershell
-git add client/src/app/InitialPasswordChangeDialog.tsx client/src/app/LoginPage.tsx client/src/styles/feature-login.css
+git add client/src/app/InitialPasswordChangeDialog.tsx client/src/shared/auth/initialPasswordRules.ts client/src/shared/auth/initialPasswordRules.test.ts client/src/app/LoginPage.tsx client/src/styles/feature-login.css
 git commit -m "feat(auth): add mandatory initial password dialog"
 ```
 

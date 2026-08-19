@@ -18,6 +18,7 @@ model User {
   phone              String?          @unique
   department         String?
   status             String           @default("pending") // pending / active / disabled
+  mustChangePassword Boolean          @default(false)
   // 授予的功能模块 section id 的 JSON 字符串数组（仅对普通用户生效；管理员忽略，拥有全部权限）。
   // 取值见 server/src/auth/permissions.ts ASSIGNABLE_MODULE_IDS。默认 "[]" = 仅默认开放模块。
   modules            String           @default("[]")

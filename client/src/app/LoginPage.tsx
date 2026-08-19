@@ -1,15 +1,21 @@
 // 登录/注册页：双标签切换登录与注册。视觉沿用应用设计令牌与面板/输入/按钮词汇，
 // 与仪表盘、用户管理等特性保持同一浅色主题。注册成功后账号 status=pending，需管理员审批。
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useAuth, register } from '../shared/api/auth';
 import { useSystemSettings } from '../shared/api/system-settings';
 import OpenSourceNotice from '../components/OpenSourceNotice';
+import InitialPasswordChangeDialog from './InitialPasswordChangeDialog';
 import logoUrl from '../../assets/icon_256.png';
 
 const PHONE_RE = /^1[3-9]\d{9}$/;
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const {
+    login,
+    initialPasswordChange,
+    changeInitialPassword,
+    clearInitialPasswordChange,
+  } = useAuth();
   const { data: systemSettings } = useSystemSettings();
   const systemName = systemSettings?.systemName || '金盾标书编制系统';
   const logoSrc = systemSettings?.logoDataUrl || logoUrl;
@@ -28,6 +34,32 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [busy, setBusy] = useState(false);
+  const initialPasswordExpiryRef = useRef<number | null>(null);
+
+  const returnInitialPasswordChangeToLogin = useCallback((message: string) => {
+    initialPasswordExpiryRef.current = null;
+    clearInitialPasswordChange();
+    setMode('login');
+    setPassword('');
+    setConfirm('');
+    setInfo('');
+    setError(message);
+  }, [clearInitialPasswordChange]);
+
+  const onInitialPasswordExpired = useCallback(() => {
+    returnInitialPasswordChangeToLogin('改密凭证已过期，请重新登录');
+  }, [returnInitialPasswordChangeToLogin]);
+
+  useEffect(() => {
+    if (initialPasswordChange) {
+      initialPasswordExpiryRef.current = initialPasswordChange.expiresAt;
+      return;
+    }
+    const previousExpiry = initialPasswordExpiryRef.current;
+    if (previousExpiry !== null && Date.now() >= previousExpiry) {
+      onInitialPasswordExpired();
+    }
+  }, [initialPasswordChange, onInitialPasswordExpired]);
 
   const switchMode = (next: 'login' | 'register') => {
     setMode(next);
@@ -46,7 +78,10 @@ export default function LoginPage() {
     setError('');
     setInfo('');
     try {
-      await login(phone, password);
+      const result = await login(phone, password);
+      if (result === 'password-change-required') {
+        setPassword('');
+      }
     } catch (err) {
       const ex = err as { response?: { data?: { error?: string } } };
       setError(ex.response?.data?.error || '登录失败');
@@ -191,6 +226,15 @@ export default function LoginPage() {
 
         <OpenSourceNotice variant="login" />
       </form>
+
+      <InitialPasswordChangeDialog
+        key={initialPasswordChange?.expiresAt ?? 'closed'}
+        open={initialPasswordChange !== null}
+        expiresAt={initialPasswordChange?.expiresAt ?? null}
+        onSubmit={changeInitialPassword}
+        onExpired={onInitialPasswordExpired}
+        onTerminalError={returnInitialPasswordChangeToLogin}
+      />
     </div>
   );
 }
