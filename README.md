@@ -81,6 +81,12 @@ npm run dev
 
 生产模式使用 Nginx 托管 `client/dist`，反向代理 `/api` 到 Fastify，PM2 使用项目内 `tsx` 启动 `server/src/index.ts`。详见 [部署指南](docs/DEPLOYMENT.md)。
 
+## 开源义务
+
+本项目使用 GNU Affero General Public License v3.0 only。
+
+详见 [AGPL 合规说明](docs/AGPL-COMPLIANCE.md)。
+
 
 ## 安全
 
