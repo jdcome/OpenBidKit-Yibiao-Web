@@ -24,7 +24,6 @@
 - 用户管理：注册审批、启停账号、角色和模块权限。
 - 提示词管理：维护平台提示词，支持恢复默认。
 - 深色/浅色模式：登录后可在顶栏切换，选择会保存在浏览器本地。
-- 开源合规入口：登录页和应用界面保留原作者、原仓库、AGPL、NOTICE 和当前修改版源码链接。
 
 完整说明见 [功能清单](docs/FEATURES.md)、[架构文档](docs/ARCHITECTURE.md) 与 [功能设计说明](docs/superpowers/specs/2026-08-19-web-module-branding-theme-docs-design.md)。
 
