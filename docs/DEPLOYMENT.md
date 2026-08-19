@@ -20,7 +20,7 @@ pnpm exec prisma db push
 pnpm run db:seed
 ```
 
-将 `server/.env.example` 复制为未跟踪的 `server/.env`，设置数据库、JWT 和管理员初始化变量。生产 `JWT_SECRET` 至少使用 32 个随机字符，管理员初始密码至少 12 位。
+将 `server/.env.example` 复制为未跟踪的 `server/.env`，设置数据库和 JWT 配置。生产 `JWT_SECRET` 至少使用 32 个随机字符。
 
 复制 `deploy/pm2/ecosystem.config.example.cjs` 到部署目录并按实际路径检查后启动：
 
@@ -45,6 +45,19 @@ systemctl reload nginx
 ```
 
 SSE 路由必须关闭 `proxy_buffering`，否则后台任务进度会被缓存。
+
+## 首次管理员强制改密
+
+全新安装必须按以下顺序完成，随后才能将服务暴露到不受信任的网络：
+
+1. 在 `server/` 目录依次运行 Prisma generate、schema push 和 seed（即上文的 `pnpm exec prisma generate`、`pnpm exec prisma db push`、`pnpm run db:seed`）；
+2. 启动服务并打开 Web 登录页；
+3. 使用 `admin/admin` 登录一次；
+4. 设置至少 12 位、且同时包含大写字母、小写字母、数字和特殊字符的新密码；
+5. 确认系统进入应用，并确认 `admin/admin` 已无法再次登录；
+6. 在将服务暴露到不受信任的网络前完成以上步骤。
+
+重复运行 seed 不会重置已存在管理员的密码。
 
 ## 更新
 
