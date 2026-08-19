@@ -1,7 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { http, publicHttp, TOKEN_KEY, USER_KEY } from './http';
 import { sseManager } from './sse';
-import { isPasswordChangeRequiredResponse } from '../auth/initialPasswordRules';
+import {
+  isActiveInitialPasswordChangeSession,
+  isAuthenticatedResponse,
+  isPasswordChangeRequiredResponse,
+} from '../auth/initialPasswordRules';
 
 export interface YibiaoUser {
   id: number;
@@ -32,22 +36,8 @@ export interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-interface AuthenticatedResponse {
-  token: string;
-  user: YibiaoUser;
-}
-
 interface InitialPasswordChangeSession extends InitialPasswordChangeState {
   token: string;
-}
-
-function isAuthenticatedResponse(value: unknown): value is AuthenticatedResponse {
-  if (!value || typeof value !== 'object') return false;
-  const response = value as Record<string, unknown>;
-  return typeof response.token === 'string'
-    && response.token.length > 0
-    && !!response.user
-    && typeof response.user === 'object';
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -119,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const changeInitialPassword = useCallback(async (newPassword: string, confirmPassword: string) => {
     const session = initialPasswordChangeSessionRef.current;
-    if (!session || session.expiresAt <= Date.now()) {
+    if (!session || !isActiveInitialPasswordChangeSession(session, initialPasswordChangeSessionRef.current)) {
       clearInitialPasswordChange();
       throw new Error('改密凭证无效或已过期，请重新登录');
     }
@@ -131,6 +121,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (!isAuthenticatedResponse(data)) {
       throw new Error('改密响应无效');
+    }
+    if (!isActiveInitialPasswordChangeSession(session, initialPasswordChangeSessionRef.current)) {
+      if (initialPasswordChangeSessionRef.current === session) {
+        clearInitialPasswordChange();
+      }
+      throw new Error('改密凭证无效或已过期，请重新登录');
     }
     completeLogin(data.token, data.user);
   }, [clearInitialPasswordChange, completeLogin]);
