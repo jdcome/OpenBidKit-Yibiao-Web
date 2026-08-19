@@ -9,14 +9,37 @@ if (JWT_SECRET.length < 32) {
   throw new Error('JWT_SECRET must contain at least 32 characters');
 }
 
+export type JwtPurpose = 'access' | 'initial-password-change';
+
 export interface JwtPayload {
   id: number;
   username: string;
   role: string;
+  purpose?: JwtPurpose;
 }
 
-export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+export function signToken(payload: Omit<JwtPayload, 'purpose'>): string {
+  return jwt.sign({ ...payload, purpose: 'access' }, JWT_SECRET, { expiresIn: '7d' });
+}
+
+export function signInitialPasswordChangeToken(payload: Omit<JwtPayload, 'purpose'>): string {
+  return jwt.sign({ ...payload, purpose: 'initial-password-change' }, JWT_SECRET, { expiresIn: '10m' });
+}
+
+export function verifyAccessToken(token: string): JwtPayload {
+  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
+  if (payload.purpose === 'initial-password-change') {
+    throw new Error('token 用途无效');
+  }
+  return payload;
+}
+
+export function verifyInitialPasswordChangeToken(token: string): JwtPayload {
+  const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
+  if (payload.purpose !== 'initial-password-change') {
+    throw new Error('token 用途无效');
+  }
+  return payload;
 }
 
 // onRequest hook：校验 Authorization: Bearer <token>，失败即 401。
@@ -27,7 +50,7 @@ export async function verifyToken(req: FastifyRequest, reply: FastifyReply): Pro
     return;
   }
   try {
-    const payload = jwt.verify(header.slice(7), JWT_SECRET) as JwtPayload;
+    const payload = verifyAccessToken(header.slice(7));
     (req as FastifyRequest & { user: JwtPayload }).user = payload;
   } catch {
     reply.code(401).send({ error: 'token 无效或已过期' });
