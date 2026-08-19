@@ -1,6 +1,6 @@
 # OpenBidKit 易标 Web 版
 
-基于 [OpenBidKit_Yibiao](https://github.com/FB208/OpenBidKit_Yibiao) 二次开发的非官方社区 Web 版，提供 React + Fastify + Prisma + PostgreSQL 的多用户部署形态。全新安装后的默认系统名称为“易标投标工具箱web版”，管理员可在 Web 端修改系统名称和 Logo。
+基于 [OpenBidKit_Yibiao](https://github.com/FB208/OpenBidKit_Yibiao) 二次开发的非官方社区 Web 版，提供 React + Fastify + Prisma + PostgreSQL 的多用户部署形态。
 
 > 原作者：mark / yibiaoai。Web 二开贡献者：jdcome。本项目不是原作者的官方发布。
 
