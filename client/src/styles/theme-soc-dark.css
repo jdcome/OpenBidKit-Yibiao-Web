@@ -1,6 +1,6 @@
-/* SOC 深色主题覆盖层。
- * 只迁移 D:\AI\soc-platform 的视觉语言；所有业务页面结构继续由原 feature CSS 决定。
- * 本文件最后加载，依靠 html[data-theme='soc-dark'] 作用域覆盖历史浅色字面量。
+/* Web 深色主题覆盖层。
+ * 所有业务页面结构继续由各 feature CSS 决定，本文件只提供深色模式变量与必要覆盖。
+ * 本文件最后加载，依靠 html[data-theme='soc-dark'] 作用域覆盖浅色模式字面量。
  */
 
 html[data-theme='soc-dark'] {
