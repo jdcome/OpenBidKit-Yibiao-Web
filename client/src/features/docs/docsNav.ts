@@ -21,9 +21,12 @@ export const DOCS_SECTIONS: DocSection[] = [
     items: [
       { id: 'usage-01', title: '生成技术方案', file: '/docs/使用/01-生成技术方案.md' },
       { id: 'usage-02', title: '已有方案扩写', file: '/docs/使用/02-已有方案扩写.md' },
-      { id: 'usage-03', title: '使用文档知识库', file: '/docs/使用/03-使用文档知识库.md' },
+      { id: 'usage-03', title: '知识库使用教程', file: '/docs/使用/03-使用文档知识库.md' },
       { id: 'usage-04', title: '标书查重', file: '/docs/使用/04-标书查重.md' },
       { id: 'usage-05', title: '废标项检查', file: '/docs/使用/05-废标项检查.md' },
+      { id: 'usage-06', title: '问题FAQ使用教程', file: '/docs/使用/07-问题FAQ.md' },
+      { id: 'usage-07', title: '用户管理使用教程', file: '/docs/使用/08-用户管理.md' },
+      { id: 'usage-08', title: '提示词管理使用教程', file: '/docs/使用/09-提示词管理.md' },
     ],
   },
   {
