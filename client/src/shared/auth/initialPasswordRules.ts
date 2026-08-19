@@ -38,6 +38,15 @@ export function getInitialPasswordRuleState(password: string): InitialPasswordRu
   };
 }
 
+export function canSubmitInitialPasswordChange(password: string, confirmation: string): boolean {
+  const state = getInitialPasswordRuleState(password);
+  return Object.values(state).every(Boolean) && password === confirmation;
+}
+
+export function preventInitialPasswordDialogDismiss(event: { preventDefault(): void }): void {
+  event.preventDefault();
+}
+
 export function isPasswordChangeRequiredResponse(value: unknown): value is PasswordChangeRequiredResponse {
   if (!value || typeof value !== 'object') return false;
   const response = value as Record<string, unknown>;
