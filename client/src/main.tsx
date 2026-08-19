@@ -7,6 +7,7 @@ import LoginPage from './app/LoginPage';
 import App from './App';
 import AppProviders from './app/providers/AppProviders';
 import WorkspaceDatabaseGate from './app/WorkspaceDatabaseGate';
+import { ThemeProvider } from './shared/theme/ThemeProvider';
 import './styles.css';
 
 // Web 版入口：登录守卫 + 真 App。先装 Web 桥接 shim（复刻 window.yibiao 形状，底层走 shared/api + SSE），
@@ -30,10 +31,12 @@ function Root() {
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Root />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Root />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

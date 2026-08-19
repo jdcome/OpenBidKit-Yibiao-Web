@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { renderMarkdownHtml } from '../markdown/renderMarkdownHtml';
+import { useTheme } from '../theme/ThemeProvider';
+import type { ThemeMode } from '../theme/theme';
 
 type MarkdownImageMode = 'default' | 'preview' | 'lazy';
 type MarkdownLinkMode = 'default' | 'external' | 'text';
@@ -41,7 +43,7 @@ function isSupportedMermaidSyntax(code: string) {
   return /^flowchart\s+(?:TD|TB|LR|RL|BT)\b/i.test(String(code || '').trim());
 }
 
-function MermaidPreview({ code }: { code: string }) {
+function MermaidPreview({ code, theme }: { code: string; theme: ThemeMode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
@@ -71,7 +73,11 @@ function MermaidPreview({ code }: { code: string }) {
     import('mermaid')
       .then((module) => {
         const mermaid = module.default;
-        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'strict' });
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: theme === 'soc-dark' ? 'dark' : 'default',
+          securityLevel: 'strict',
+        });
         return mermaid.render(`mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`, trimmedCode);
       })
       .then(({ svg }) => {
@@ -89,7 +95,7 @@ function MermaidPreview({ code }: { code: string }) {
       cancelled = true;
       if (container) container.innerHTML = '';
     };
-  }, [code]);
+  }, [code, theme]);
 
   return (
     <figure className={`mermaid-preview-card is-${status}`}>
@@ -131,6 +137,7 @@ function MarkdownRenderer({
   previewImageTitle = '点击放大查看',
   onPreviewImage,
 }: MarkdownRendererProps) {
+  const { theme } = useTheme();
   const html = useMemo(() => renderMarkdownHtml(children, { allowRawHtml, enableGfm }), [allowRawHtml, children, enableGfm]);
 
   const content = useMemo(() => {
@@ -209,7 +216,7 @@ function MarkdownRenderer({
       if (tag === 'pre' && renderMermaid) {
         const code = element.querySelector('code');
         if (code && /\blanguage-mermaid\b/i.test(code.getAttribute('class') || '')) {
-          return <MermaidPreview key={key} code={(code.textContent || '').replace(/\n$/, '')} />;
+          return <MermaidPreview key={key} code={(code.textContent || '').replace(/\n$/, '')} theme={theme} />;
         }
       }
 
@@ -277,7 +284,7 @@ function MarkdownRenderer({
     };
 
     return Array.from(root?.childNodes || []).map((node, index) => renderNode(node, index));
-  }, [enableGfm, html, imageClassName, imageMode, linkMode, linkTextClassName, onPreviewImage, previewImageTitle, renderMermaid]);
+  }, [enableGfm, html, imageClassName, imageMode, linkMode, linkTextClassName, onPreviewImage, previewImageTitle, renderMermaid, theme]);
 
   return <>{content}</>;
 }

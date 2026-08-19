@@ -28,7 +28,6 @@ const navigationIcons: Record<SectionId, ComponentType<SVGProps<SVGSVGElement>>>
   'tool-asset-library': ArchiveIcon,
   'company-qualification-library': ShieldIcon,
   'personnel-qualification-library': BriefcaseIcon,
-  resources: ResourcesIcon,
   'bid-check': BidCheckIcon,
   'duplicate-check': CompareIcon,
   'rejection-check': ShieldIcon,
@@ -385,17 +384,6 @@ function ArchiveIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M5 7.5h14v12H5z" />
       <path d="M4 4.5h16v3H4z" />
       <path d="M9 11.2h6" />
-    </svg>
-  );
-}
-
-function ResourcesIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M4.8 6.4h4v12.2h-4z" />
-      <path d="M10.1 4.8h4.2v13.8h-4.2z" />
-      <path d="m15.4 7.1 3.4-.9 2.7 10.8-3.4.85z" />
-      <path d="M4 19.3h16.8" />
     </svg>
   );
 }

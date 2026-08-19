@@ -1365,7 +1365,7 @@ function SettingsPage({ onDeveloperModeChange }: SettingsPageProps) {
                 type="text"
                 value={draftSystemName}
                 onChange={(e) => { setDraftSystemName(e.target.value); setBasicDirty(true); }}
-                placeholder="金盾标书编制系统"
+                placeholder="易标投标工具箱web版"
               />
             </div>
             <div className="settings-row">

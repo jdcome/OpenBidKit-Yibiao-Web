@@ -252,7 +252,7 @@ const defaultConfig: any = {
   developer_token_stats_auto_open: false,
   analytics_client_id: '',
   analytics_created_at: '',
-  system_name: '金盾标书编制系统',
+  system_name: '易标投标工具箱web版',
   logo_data_url: null as string | null,
 };
 

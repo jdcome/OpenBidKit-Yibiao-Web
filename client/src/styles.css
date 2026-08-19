@@ -16,7 +16,6 @@
 @import './styles/feature-knowledge-base.css';
 @import './styles/feature-asset-library.css';
 @import './styles/feature-personnel.css';
-@import './styles/feature-resources.css';
 @import './styles/feature-export-format.css';
 @import './styles/feature-developer.css';
 @import './styles/feature-dashboard.css';
@@ -25,3 +24,4 @@
 @import './styles/feature-prompt-management.css';
 @import './styles/feature-login.css';
 @import './styles/feature-docs.css';
+@import './styles/theme-soc-dark.css';

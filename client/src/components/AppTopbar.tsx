@@ -4,16 +4,22 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../shared/api/auth';
 import { useSystemSettings } from '../shared/api/system-settings';
+import { useTheme } from '../shared/theme/ThemeProvider';
 import ConfirmDialog from './ConfirmDialog';
 import logoUrl from '../../assets/icon_256.png';
 
 const ROLE_LABEL: Record<string, string> = { admin: '管理员', user: '普通用户' };
 
-function AppTopbar() {
+interface AppTopbarProps {
+  showThemeToggle?: boolean;
+}
+
+function AppTopbar({ showThemeToggle = false }: AppTopbarProps) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { data: systemSettings } = useSystemSettings();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const systemName = systemSettings?.systemName || '金盾标书编制系统';
+  const systemName = systemSettings?.systemName || '易标投标工具箱web版';
   const logoSrc = systemSettings?.logoDataUrl || logoUrl;
 
   // 浏览器标签标题跟随系统名（DB 可配）。未登录态在 LoginPage 同步。
@@ -34,6 +40,19 @@ function AppTopbar() {
         <strong>{systemName}</strong>
       </div>
       <div className="topbar-user">
+        {showThemeToggle && (
+          <button
+            type="button"
+            className="topbar-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'soc-dark' ? '切换到浅色主题' : '切换到 SOC 深色主题'}
+            aria-pressed={theme === 'soc-dark'}
+            title={theme === 'soc-dark' ? '切换到浅色主题' : '切换到 SOC 深色主题'}
+          >
+            <ThemeIcon dark={theme === 'soc-dark'} />
+            <span>{theme === 'soc-dark' ? '深色模式' : '浅色模式'}</span>
+          </button>
+        )}
         <span className="topbar-avatar" aria-hidden="true">{initial}</span>
         <span className="topbar-user-meta">
           <strong>{name}</strong>
@@ -54,6 +73,20 @@ function AppTopbar() {
         onCancel={() => setConfirmOpen(false)}
       />
     </header>
+  );
+}
+
+function ThemeIcon({ dark }: { dark: boolean }) {
+  return dark ? (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.2 14.1A8.2 8.2 0 0 1 9.9 3.8 8.2 8.2 0 1 0 20.2 14.1Z" />
+      <path d="M16.8 4.8h.01M19.4 8h.01" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.6" />
+      <path d="M12 2.8v2M12 19.2v2M2.8 12h2M19.2 12h2M5.5 5.5l1.4 1.4M17.1 17.1l1.4 1.4M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4" />
+    </svg>
   );
 }
 

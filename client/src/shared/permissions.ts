@@ -11,7 +11,6 @@ export const ASSIGNABLE_MODULES: AssignableModule[] = [
   { id: 'template-settings', label: '格式管理' },
   { id: 'knowledge-base', label: '知识库' },
   { id: 'bid-check', label: '标书检查' },
-  { id: 'resources', label: '资源下载' },
   { id: 'docs', label: '使用文档' },
   { id: 'faq', label: '问题FAQ' },
   { id: 'user-management', label: '用户管理' },
@@ -22,7 +21,6 @@ export const GRANTABLE_MODULE_IDS: SectionId[] = [
   'template-settings',
   'knowledge-base',
   'bid-check',
-  'resources',
   'docs',
   'faq',
 ];

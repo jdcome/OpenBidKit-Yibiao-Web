@@ -179,7 +179,7 @@ class ExportCommentRegistry {
     this.nextId += 1;
     this.comments.push({
       id,
-      author: '金盾标书编制系统',
+      author: '易标投标工具箱web版',
       initials: 'AI',
       date: new Date(),
       children: [new Paragraph({ children: [new TextRun({ text })] })],

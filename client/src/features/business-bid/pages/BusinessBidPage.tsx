@@ -1,14 +1,14 @@
 const responseItems = [
-  { label: '付款条件', status: '已响应', detail: '月度计量，验收后 30 日内支付' },
-  { label: '履约保证金', status: '待确认', detail: '建议补充银行保函开具周期' },
-  { label: '报价有效期', status: '已响应', detail: '90 日历天，满足招标文件要求' },
-  { label: '偏离说明', status: '需复核', detail: '合同条款第 12.3 项存在轻微偏离' },
+  { label: '报价得分', status: '待计算', detail: '录入报价与基准价规则后自动换算' },
+  { label: '技术得分', status: '待录入', detail: '按技术评分项逐项填写评审分值' },
+  { label: '商务得分', status: '待复核', detail: '资质、业绩、服务承诺等评分项统一汇总' },
+  { label: '最终得分', status: '待生成', detail: '综合报价、技术、商务三类标准输出总分' },
 ];
 
 const workflowSteps = [
-  { title: '导入招标文件', text: '识别商务条款、报价口径和合同约束。' },
-  { title: '生成响应矩阵', text: '按条款输出响应、偏离和待补充材料。' },
-  { title: '编制报价附件', text: '整理分项报价、付款节点和保函资料。' },
+  { title: '录入评分标准', text: '整理报价、技术、商务评分细则和权重。' },
+  { title: '填写投标数据', text: '录入投标报价、技术响应和商务资格得分。' },
+  { title: '计算最终得分', text: '按评审规则汇总并生成可复核的得分表。' },
 ];
 
 function BusinessBidPage() {
@@ -20,28 +20,28 @@ function BusinessBidPage() {
       </div>
       <section className="demo-hero-card">
         <div className="demo-hero-copy">
-          <span className="section-kicker">商务标</span>
-          <h2>把商务响应、报价口径和合同偏离放在同一张工作台里</h2>
-          <p>这里会用于梳理付款、质保、履约、报价有效期等商务条款，辅助生成响应矩阵和报价材料清单。</p>
+          <span className="section-kicker">投标计算器</span>
+          <h2>综合报价、技术、商务评分标准计算标书最终得分</h2>
+          <p>这里会用于录入评审办法、投标报价和各项评分结果，辅助形成可复核的投标得分测算。</p>
           <div className="demo-hero-actions">
-            <button type="button" className="primary-action" disabled>导入招标文件</button>
+            <button type="button" className="primary-action" disabled>录入评分标准</button>
           </div>
         </div>
-        <div className="demo-metric-stack" aria-label="商务标示例指标">
+        <div className="demo-metric-stack" aria-label="投标计算器示例指标">
           <article>
-            <span>条款识别</span>
-            <strong>126</strong>
-            <small>商务与合同条款</small>
+            <span>报价分</span>
+            <strong>42.6</strong>
+            <small>价格评审</small>
           </article>
           <article>
-            <span>待复核</span>
-            <strong>8</strong>
-            <small>付款、保函、偏离项</small>
+            <span>技术分</span>
+            <strong>38.0</strong>
+            <small>技术评分</small>
           </article>
           <article>
-            <span>材料包</span>
-            <strong>12</strong>
-            <small>报价与资信附件</small>
+            <span>总分</span>
+            <strong>91.8</strong>
+            <small>综合测算</small>
           </article>
         </div>
       </section>
@@ -51,7 +51,7 @@ function BusinessBidPage() {
           <div className="demo-panel-head">
             <div>
               <span className="section-kicker">响应流程</span>
-              <h3>计划中的商务标编制路径</h3>
+              <h3>计划中的投标得分测算路径</h3>
             </div>
             <span className="demo-soft-pill">Demo 预览</span>
           </div>
@@ -72,7 +72,7 @@ function BusinessBidPage() {
           <div className="demo-panel-head">
             <div>
               <span className="section-kicker">条款矩阵</span>
-              <h3>商务响应示例</h3>
+              <h3>评分项示例</h3>
             </div>
           </div>
           <div className="demo-table-list">
@@ -88,14 +88,14 @@ function BusinessBidPage() {
 
         <aside className="demo-preview-card">
           <span className="section-kicker">输出预览</span>
-          <h3>商务标材料包</h3>
+          <h3>投标得分测算表</h3>
           <div className="demo-document-preview">
-            <strong>商务响应表.docx</strong>
-            <span>报价汇总表.xlsx</span>
-            <span>合同条款偏离表.docx</span>
-            <span>资信证明附件清单.pdf</span>
+            <strong>综合得分测算.xlsx</strong>
+            <span>报价评分明细.xlsx</span>
+            <span>技术评分依据.docx</span>
+            <span>商务评分依据.docx</span>
           </div>
-          <p>功能上线后会把识别结果、人工确认项和导出材料集中管理。</p>
+          <p>功能上线后会把评分标准、录入数据和最终测算结果集中管理。</p>
         </aside>
       </div>
     </div>

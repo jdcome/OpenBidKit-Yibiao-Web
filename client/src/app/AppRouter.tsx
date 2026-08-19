@@ -19,7 +19,6 @@ import KnowledgeBasePage from '../features/knowledge-base/pages/KnowledgeBasePag
 import AssetLibraryPage from '../features/asset-library/pages/AssetLibraryPage';
 import PersonnelLibraryPage from '../features/personnel/pages/PersonnelLibraryPage';
 import RejectionCheckPage from '../features/rejection-check/pages/RejectionCheckPage';
-import ResourcesPage from '../features/resources/pages/ResourcesPage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
 import DocsPage from '../features/docs/pages/DocsPage';
 import FaqPage from '../features/feedback/pages/FaqPage';
@@ -86,8 +85,6 @@ function AppRouter({ activeSection, developerMode, onDeveloperModeChange, onSect
       return <AssetLibraryPage library="company" />;
     case 'personnel-qualification-library':
       return <PersonnelLibraryPage />;
-    case 'resources':
-      return <ResourcesPage />;
     case 'duplicate-check':
       return <DuplicateCheckPage />;
     case 'rejection-check':

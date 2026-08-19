@@ -1,0 +1,1823 @@
+/* SOC 深色主题覆盖层。
+ * 只迁移 D:\AI\soc-platform 的视觉语言；所有业务页面结构继续由原 feature CSS 决定。
+ * 本文件最后加载，依靠 html[data-theme='soc-dark'] 作用域覆盖历史浅色字面量。
+ */
+
+html[data-theme='soc-dark'] {
+  --yb-primary: #35d883;
+  --yb-primary-hover: #62e59a;
+  --yb-primary-deep: #18a058;
+  --yb-violet: #9b7cff;
+  --yb-bg: #070a09;
+  --yb-surface: rgba(255, 255, 255, 0.035);
+  --yb-surface-raised: rgba(255, 255, 255, 0.055);
+  --yb-surface-muted: rgba(255, 255, 255, 0.026);
+  --yb-control-bg: rgba(0, 0, 0, 0.22);
+  --yb-border: rgba(255, 255, 255, 0.12);
+  --yb-border-soft: rgba(255, 255, 255, 0.075);
+  --yb-text: rgba(255, 255, 255, 0.9);
+  --yb-text-soft: rgba(255, 255, 255, 0.58);
+  --yb-text-muted: rgba(255, 255, 255, 0.34);
+  --yb-overlay: rgba(0, 0, 0, 0.68);
+  --yb-success: #35d883;
+  --yb-warning: #f0a020;
+  --yb-danger: #ff6871;
+  --yb-info: #63b3ff;
+  --yb-focus-ring: rgba(53, 216, 131, 0.48);
+  --yb-paper-bg: #ffffff;
+  --yb-paper-text: #1c2536;
+  --yb-shadow-xs: 0 2px 8px rgba(0, 0, 0, 0.22);
+  --yb-shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.28);
+  --yb-shadow: inset 0 1px rgba(255, 255, 255, 0.05), 0 22px 52px rgba(0, 0, 0, 0.28);
+  --yb-shadow-lg: inset 0 1px rgba(255, 255, 255, 0.07), 0 30px 72px rgba(0, 0, 0, 0.44);
+  --yb-shadow-hover: inset 0 1px rgba(255, 255, 255, 0.09), 0 26px 58px rgba(0, 0, 0, 0.38), 0 0 34px rgba(53, 216, 131, 0.07);
+  color: var(--yb-text);
+  background: var(--yb-bg);
+}
+
+html[data-theme='soc-dark'] body,
+html[data-theme='soc-dark'] #root {
+  color: var(--yb-text);
+  background: #070a09;
+}
+
+html[data-theme='soc-dark'] ::selection {
+  color: #effff6;
+  background: rgba(53, 216, 131, 0.34);
+}
+
+html[data-theme='soc-dark'] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+html[data-theme='soc-dark'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[data-theme='soc-dark'] ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+html[data-theme='soc-dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(53, 216, 131, 0.42);
+}
+
+html[data-theme='soc-dark'] :focus-visible {
+  outline-color: var(--yb-focus-ring);
+}
+
+html[data-theme='soc-dark'] :where(input, select, textarea) {
+  color: var(--yb-text);
+  color-scheme: dark;
+  background-color: var(--yb-control-bg);
+  border-color: var(--yb-border);
+}
+
+html[data-theme='soc-dark'] :where(input, textarea)::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+html[data-theme='soc-dark'] :where(input, select, textarea):focus {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(53, 216, 131, 0.46);
+  box-shadow: 0 0 0 3px rgba(53, 216, 131, 0.08);
+}
+
+html[data-theme='soc-dark'] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238b9891' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* 应用壳：近黑绿灰、点阵、低对比轨迹线和 SOC 同款玻璃导航。 */
+html[data-theme='soc-dark'] .app-shell {
+  color: var(--yb-text);
+  background: #070a09;
+}
+
+html[data-theme='soc-dark'] .main-area {
+  isolation: isolate;
+  background: #070a09;
+}
+
+html[data-theme='soc-dark'] .content-shell {
+  background:
+    radial-gradient(circle at 52% 7%, rgba(24, 160, 88, 0.07), transparent 26%),
+    radial-gradient(circle at 86% 42%, rgba(35, 108, 76, 0.055), transparent 22%),
+    #070a09;
+}
+
+html[data-theme='soc-dark'] .content-shell::before,
+html[data-theme='soc-dark'] .content-shell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: '';
+  pointer-events: none;
+}
+
+html[data-theme='soc-dark'] .content-shell::before {
+  opacity: 0.38;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.17) 0.65px, transparent 0.65px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.72) 76%, transparent 100%);
+}
+
+html[data-theme='soc-dark'] .content-shell::after {
+  inset: 8% -12% 43% 24%;
+  border: 1px solid rgba(53, 216, 131, 0.07);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+}
+
+html[data-theme='soc-dark'] .content-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme='soc-dark'] .sidebar {
+  color: var(--yb-text);
+  background: rgba(13, 17, 15, 0.98);
+  border-right-color: rgba(255, 255, 255, 0.085);
+  box-shadow: 18px 0 50px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='soc-dark'] .sidebar-surface {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(53, 216, 131, 0.055), transparent 28%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.025), transparent 36%);
+}
+
+html[data-theme='soc-dark'] .brand-block,
+html[data-theme='soc-dark'] .sidebar-footer {
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+html[data-theme='soc-dark'] .brand-copy strong {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme='soc-dark'] .brand-copy span {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+html[data-theme='soc-dark'] .project-switcher-trigger,
+html[data-theme='soc-dark'] .project-switcher-menu {
+  color: var(--yb-text);
+  background: rgba(255, 255, 255, 0.026);
+  border-color: rgba(255, 255, 255, 0.085);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.035), 0 18px 42px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme='soc-dark'] .project-switcher-trigger:hover {
+  border-color: rgba(53, 216, 131, 0.35);
+  box-shadow: 0 0 0 3px rgba(53, 216, 131, 0.07);
+}
+
+html[data-theme='soc-dark'] .project-switcher-label::before {
+  background: #35d883;
+  box-shadow: 0 0 10px rgba(53, 216, 131, 0.55);
+}
+
+html[data-theme='soc-dark'] .project-switcher-option:hover,
+html[data-theme='soc-dark'] .project-switcher-option[aria-selected='true'],
+html[data-theme='soc-dark'] .project-switcher-create:hover {
+  background: rgba(53, 216, 131, 0.075);
+}
+
+html[data-theme='soc-dark'] .project-switcher-option[aria-selected='true'] .project-switcher-option-name,
+html[data-theme='soc-dark'] .project-switcher-create {
+  color: #62e59a;
+}
+
+html[data-theme='soc-dark'] .collapse-button {
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(20, 25, 22, 0.96);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.36), 0 0 0 4px rgba(7, 10, 9, 0.78);
+}
+
+html[data-theme='soc-dark'] :where(.nav-item, .settings-trigger) {
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+}
+
+html[data-theme='soc-dark'] :where(.nav-item, .settings-trigger):hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.038);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme='soc-dark'] :where(.nav-item, .settings-trigger).is-active {
+  color: rgba(255, 255, 255, 0.94);
+  background: linear-gradient(90deg, rgba(53, 216, 131, 0.14), rgba(255, 255, 255, 0.035));
+  border-color: rgba(53, 216, 131, 0.22);
+  box-shadow: inset 3px 0 #35d883, 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme='soc-dark'] .nav-icon {
+  color: inherit;
+  background: rgba(53, 216, 131, 0.055);
+  border-color: rgba(53, 216, 131, 0.1);
+  border-radius: 10px;
+}
+
+html[data-theme='soc-dark'] :where(.nav-item, .settings-trigger).is-active .nav-icon {
+  background: rgba(53, 216, 131, 0.1);
+  border-color: rgba(53, 216, 131, 0.24);
+}
+
+html[data-theme='soc-dark'] .app-topbar {
+  background: rgba(9, 12, 11, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.075);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+html[data-theme='soc-dark'] .app-topbar-brand strong,
+html[data-theme='soc-dark'] .topbar-user-meta strong {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html[data-theme='soc-dark'] .topbar-avatar {
+  color: #35d883;
+  background: rgba(53, 216, 131, 0.1);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 0 18px rgba(53, 216, 131, 0.09);
+}
+
+html[data-theme='soc-dark'] :where(.topbar-logout, .topbar-theme-toggle) {
+  color: rgba(255, 255, 255, 0.56);
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.085);
+}
+
+html[data-theme='soc-dark'] :where(.topbar-logout, .topbar-theme-toggle):hover {
+  color: #62e59a;
+  background: rgba(53, 216, 131, 0.08);
+  border-color: rgba(53, 216, 131, 0.32);
+}
+
+html[data-theme='soc-dark'] .topbar-theme-toggle[aria-pressed='true'] {
+  color: #eafff3;
+  background: rgba(24, 160, 88, 0.18);
+  border-color: rgba(53, 216, 131, 0.42);
+}
+
+html[data-theme='soc-dark'] .section-kicker {
+  color: #35d883;
+}
+
+/* 通用表面与控件。:where 保持低特异性，业务状态类仍可表达 warning/error/success。 */
+html[data-theme='soc-dark'] :where(
+  .panel,
+  .empty-panel,
+  [class$='-panel'],
+  [class$='-card'],
+  [class$='-table'],
+  [class$='-widget'],
+  [class$='-dialog']
+) {
+  color: var(--yb-text);
+  background-color: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 22px 52px rgba(0, 0, 0, 0.22);
+}
+
+html[data-theme='soc-dark'] :where(
+  .panel,
+  .empty-panel,
+  [class$='-panel'],
+  [class$='-card'],
+  [class$='-widget']
+) {
+  background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014));
+}
+
+html[data-theme='soc-dark'] :where(
+  h1, h2, h3, h4, h5, h6,
+  [class$='-title'],
+  [class$='-name']
+) {
+  color: var(--yb-text);
+}
+
+html[data-theme='soc-dark'] :where(
+  p, small, [class$='-description'], [class$='-desc'], [class$='-hint'], [class$='-meta']
+) {
+  border-color: var(--yb-border-soft);
+}
+
+html[data-theme='soc-dark'] :where(
+  .primary-action,
+  .floating-toolbar-button.is-primary
+) {
+  color: #eafff3;
+  background: rgba(24, 160, 88, 0.22);
+  border-color: rgba(53, 216, 131, 0.5);
+  box-shadow: 0 10px 28px rgba(24, 160, 88, 0.14);
+}
+
+html[data-theme='soc-dark'] :where(
+  .primary-action,
+  .floating-toolbar-button.is-primary
+):hover:not(:disabled) {
+  color: #ffffff;
+  background: rgba(24, 160, 88, 0.32);
+  box-shadow: 0 14px 34px rgba(24, 160, 88, 0.2), 0 0 24px rgba(53, 216, 131, 0.08);
+}
+
+html[data-theme='soc-dark'] :where(.secondary-action, .floating-toolbar) {
+  color: var(--yb-text);
+  background: rgba(14, 19, 16, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--yb-shadow-lg);
+  backdrop-filter: blur(18px) saturate(118%);
+}
+
+html[data-theme='soc-dark'] .secondary-action:hover:not(:disabled) {
+  color: #62e59a;
+  background: rgba(53, 216, 131, 0.08);
+  border-color: rgba(53, 216, 131, 0.32);
+}
+
+html[data-theme='soc-dark'] :where(.danger-action, .text-button.is-danger) {
+  color: #ff8189;
+}
+
+html[data-theme='soc-dark'] :where(.floating-toolbar-button, .text-button) {
+  color: var(--yb-text-soft);
+}
+
+html[data-theme='soc-dark'] :where(.floating-toolbar-button, .text-button):hover:not(:disabled) {
+  color: #62e59a;
+  background: rgba(53, 216, 131, 0.07);
+  border-color: rgba(53, 216, 131, 0.16);
+}
+
+html[data-theme='soc-dark'] :where(table, [role='table']) {
+  color: var(--yb-text);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='soc-dark'] :where(thead, [role='columnheader']) {
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+html[data-theme='soc-dark'] :where(th, td, tr, [role='row']) {
+  border-color: rgba(255, 255, 255, 0.065);
+}
+
+html[data-theme='soc-dark'] :where(tbody tr, [role='row']):hover {
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+html[data-theme='soc-dark'] :where(code, kbd) {
+  color: #8ce9b4;
+  background: rgba(53, 216, 131, 0.08);
+  border-color: rgba(53, 216, 131, 0.16);
+}
+
+html[data-theme='soc-dark'] :where(.progress-track, [class$='-progress-track']) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='soc-dark'] :where(.progress-track span, [class$='-progress-fill']) {
+  background: linear-gradient(90deg, #18a058, #35d883);
+  box-shadow: 0 0 10px rgba(53, 216, 131, 0.28);
+}
+
+/* 登录页在认证守卫外继承同一主题。 */
+html[data-theme='soc-dark'] .login-page {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(53, 216, 131, 0.09), transparent 42%),
+    radial-gradient(rgba(255, 255, 255, 0.12) 0.65px, transparent 0.65px),
+    #070a09;
+  background-size: auto, 18px 18px, auto;
+}
+
+html[data-theme='soc-dark'] .login-card {
+  color: var(--yb-text);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 30px 72px rgba(0, 0, 0, 0.44), 0 0 44px rgba(53, 216, 131, 0.04);
+  backdrop-filter: blur(20px) saturate(115%);
+}
+
+html[data-theme='soc-dark'] .login-tabs {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='soc-dark'] .login-tab.is-active {
+  color: #62e59a;
+  border-bottom-color: #35d883;
+}
+
+html[data-theme='soc-dark'] .login-field input {
+  color: var(--yb-text);
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='soc-dark'] .login-field input:focus {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(53, 216, 131, 0.46);
+  box-shadow: 0 0 0 3px rgba(53, 216, 131, 0.08);
+}
+
+/* Radix Portal、共享弹窗、Toast、Tooltip 与 Popover。 */
+html[data-theme='soc-dark'] :where(
+  .content-regenerate-modal,
+  .detail-help-modal,
+  .remote-notice-modal,
+  .document-parse-notice-modal,
+  .ai-http-error-modal,
+  .image-preview-modal,
+  .markdown-fullscreen-overlay
+) {
+  background: var(--yb-overlay);
+  backdrop-filter: blur(8px);
+}
+
+html[data-theme='soc-dark'] :where(
+  .content-regenerate-card,
+  .detail-help-card,
+  .confirm-dialog,
+  .remote-notice-card,
+  .document-parse-notice-card,
+  .ai-http-error-card,
+  .remote-notice-preview-card,
+  .image-preview-card,
+  .workspace-database-card,
+  .license-status-card,
+  .offline-license-dialog,
+  .gpu-acceleration-card,
+  .required-online-services-card
+) {
+  color: var(--yb-text);
+  background: rgba(14, 19, 16, 0.97);
+  border-color: rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06), 0 30px 72px rgba(0, 0, 0, 0.48);
+}
+
+html[data-theme='soc-dark'] :where(.tooltip-content, [role='tooltip']) {
+  color: rgba(255, 255, 255, 0.86);
+  background: rgba(18, 24, 20, 0.98);
+  border-color: rgba(53, 216, 131, 0.2);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.42);
+}
+
+html[data-theme='soc-dark'] .tooltip-arrow {
+  fill: #121814;
+}
+
+html[data-theme='soc-dark'] .app-toast {
+  color: var(--yb-text);
+  background: rgba(14, 19, 16, 0.97);
+  border-color: rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06), 0 20px 48px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px) saturate(118%);
+}
+
+html[data-theme='soc-dark'] .app-toast.is-success {
+  border-color: rgba(53, 216, 131, 0.38);
+}
+
+html[data-theme='soc-dark'] .app-toast.is-error {
+  border-color: rgba(255, 104, 113, 0.4);
+}
+
+html[data-theme='soc-dark'] .app-toast-action {
+  color: var(--yb-text-soft);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+html[data-theme='soc-dark'] .app-toast-action.is-primary {
+  color: #eafff3;
+  background: rgba(24, 160, 88, 0.22);
+  border-color: rgba(53, 216, 131, 0.38);
+}
+
+/* Markdown 外壳深色；导出/纸张预览在文件末尾恢复白纸。 */
+html[data-theme='soc-dark'] :where(
+  .markdown-viewer,
+  .remote-notice-content,
+  .markdown-editor,
+  .markdown-editor-toolbar,
+  .markdown-editor-textarea,
+  .markdown-fullscreen-dialog,
+  .markdown-editor-fullscreen-dialog,
+  .markdown-editor-fullscreen-body,
+  .markdown-fullscreen-content > .markdown-viewer
+) {
+  color: var(--yb-text);
+  background: rgba(11, 15, 13, 0.96) !important;
+  background-image: none !important;
+  background-color: rgba(11, 15, 13, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) {
+  --md-text: rgba(255, 255, 255, 0.74);
+  --md-heading: rgba(255, 255, 255, 0.92);
+  --md-border: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) :where(h1, h2, h3, h4, h5, h6, strong) {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) a {
+  color: #62e59a;
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) :where(blockquote, pre, code, table) {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) blockquote {
+  color: rgba(255, 255, 255, 0.56);
+  background: rgba(53, 216, 131, 0.045);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-viewer, .remote-notice-content) pre {
+  color: #d8e4de;
+  background: #0b100d;
+}
+
+html[data-theme='soc-dark'] .markdown-editor-toolbar button:hover:not(:disabled) {
+  color: #62e59a;
+  background: rgba(53, 216, 131, 0.08);
+}
+
+html[data-theme='soc-dark'] :where(.markdown-fullscreen-trigger, .markdown-fullscreen-close) {
+  color: #62e59a;
+  background: rgba(14, 19, 16, 0.94);
+  border-color: rgba(53, 216, 131, 0.24);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+}
+
+/* 纸张/Word 导出预览必须保持真实打印效果。 */
+html[data-theme='soc-dark'] :where(
+  .markdown-viewer.export-format-preview,
+  .export-format-preview .markdown-viewer,
+  .export-template-preview-paper,
+  .content-paper,
+  .document-paper,
+  .paper-preview
+) {
+  color: var(--yb-paper-text) !important;
+  background: var(--yb-paper-bg) !important;
+  border-color: #e5e7eb !important;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .markdown-viewer.export-format-preview,
+  .export-format-preview .markdown-viewer,
+  .export-template-preview-paper,
+  .content-paper,
+  .document-paper,
+  .paper-preview
+) :where(h1, h2, h3, h4, h5, h6, p, span, strong, em, li, td, th) {
+  color: inherit !important;
+}
+
+html[data-theme='soc-dark'] .export-template-preview-paper :where(
+  .export-template-chapter-frame,
+  .export-template-chapter-leaf-row
+) {
+  color: var(--yb-paper-text) !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Feature 兼容层：覆盖历史 CSS 中带更高特异性的浅色表面，不改变尺寸、网格或 DOM。 */
+html[data-theme='soc-dark'] :where(
+  .asset-library-input,
+  .asset-field-input,
+  .dashboard-input,
+  .dashboard-select,
+  .dashboard-rename-input,
+  .dashboard-field select,
+  .developer-expansion-replace-field textarea,
+  .feedback-textarea,
+  .feedback-status-select,
+  .doc-editor-title,
+  .export-format-margin-grid input,
+  .knowledge-create-folder-bar input,
+  .knowledge-analysis-command input,
+  .prompt-field select,
+  .settings-row select,
+  .input-with-action,
+  .analysis-result-card textarea,
+  .subject-identity-form-grid input,
+  .export-template-select-search,
+  .content-generation-config-row select,
+  .outline-v2-word-control-grid input,
+  .outline-knowledge-search,
+  .outline-detail-body textarea,
+  .user-mgmt-field select
+) {
+  color: var(--yb-text) !important;
+  background: rgba(0, 0, 0, 0.22) !important;
+  background-color: rgba(0, 0, 0, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none;
+}
+
+html[data-theme='soc-dark'] :where(
+  .asset-library-input,
+  .asset-field-input,
+  .dashboard-input,
+  .dashboard-select,
+  .dashboard-rename-input,
+  .dashboard-field select,
+  .developer-expansion-replace-field textarea,
+  .feedback-textarea,
+  .feedback-status-select,
+  .doc-editor-title,
+  .export-format-margin-grid input,
+  .knowledge-create-folder-bar input,
+  .knowledge-analysis-command input,
+  .prompt-field select,
+  .settings-row select,
+  .input-with-action,
+  .analysis-result-card textarea,
+  .subject-identity-form-grid input,
+  .export-template-select-search,
+  .content-generation-config-row select,
+  .outline-v2-word-control-grid input,
+  .outline-knowledge-search,
+  .outline-detail-body textarea,
+  .user-mgmt-field select
+):focus,
+html[data-theme='soc-dark'] .input-with-action:focus-within {
+  background: rgba(0, 0, 0, 0.3) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(53, 216, 131, 0.46) !important;
+  box-shadow: 0 0 0 3px rgba(53, 216, 131, 0.08) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .asset-expiry-widget,
+  .create-project-dialog,
+  .project-summary-block,
+  .feedback-faq,
+  .feedback-image-add,
+  .duplicate-upload-summary,
+  .duplicate-document-tab,
+  .duplicate-file-pill,
+  .duplicate-analysis-tabs,
+  .duplicate-metadata-table-wrap,
+  .duplicate-outline-node-main,
+  .duplicate-sentence-copy,
+  .duplicate-pagination button,
+  .duplicate-image-preview,
+  .duplicate-image-location,
+  .export-template-chapter-frame,
+  .export-template-chapter-leaf-row,
+  .template-delete-dialog,
+  .knowledge-source-dialog-card,
+  .knowledge-item-content,
+  .knowledge-item-card pre,
+  .personnel-table,
+  .prompt-table,
+  .rejection-file-pill,
+  .rejection-check-result-tabs,
+  .rd-column-preview span,
+  .rd-issue,
+  .image-model-status,
+  .agent-self-check-status,
+  .agent-self-check-result,
+  .parser-card,
+  .parser-card-muted,
+  .ai-diagnostics-grid,
+  .ai-diagnostic-attempt,
+  .technical-document-file-pill,
+  .bid-analysis-config-card,
+  .global-facts-edit-pane label,
+  .subject-identity-dialog,
+  .subject-identity-evidence-card,
+  .content-regenerate-popover,
+  .content-generation-config-card,
+  .export-progress-card,
+  .export-template-select-dialog,
+  .export-template-select-row,
+  .outline-generation-config-card,
+  .outline-coverage-table-wrap,
+  .agent-question-radio,
+  .outline-v2-force-section-words,
+  .bid-section-selector-card,
+  .outline-knowledge-document,
+  .outline-knowledge-folder.compact,
+  .outline-knowledge-selected-item,
+  .outline-progress-log p,
+  .outline-coverage-summary-card,
+  .user-mgmt-table,
+  .edit-user-dialog,
+  .user-mgmt-checkbox-group,
+  .global-facts-reader,
+  .global-facts-reader-head,
+  .global-facts-editor-grid,
+  .global-facts-preview-pane,
+  .global-facts-stats span,
+  .global-facts-progress,
+  .ai-diagnostics-detail,
+  .ai-diagnostic-row
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018)) !important;
+  background-color: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 18px 42px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='soc-dark'] :where(
+  .asset-library-tab,
+  .asset-card-actions button,
+  .knowledge-folder-actions button,
+  .knowledge-preview-tabs button,
+  .personnel-cert-actions button,
+  .export-template-fullscreen-close,
+  .image-preview-close,
+  .markdown-fullscreen-trigger,
+  .markdown-fullscreen-close
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .asset-card:hover,
+  .knowledge-folder-card:hover:not(.is-active):not(.is-dragging),
+  .knowledge-document-card:hover:not(.is-dragging),
+  .personnel-cert-row:hover,
+  .global-facts-item:hover:not(.is-active),
+  .ai-diagnostic-row:hover:not(.is-active),
+  .duplicate-sentence-list article:hover,
+  .bid-analysis-config-item:hover:not(.is-required)
+) {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(53, 216, 131, 0.18) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-table thead th,
+  .personnel-table thead th,
+  .user-mgmt-table thead th,
+  .bid-analysis-json-table th,
+  .duplicate-guide-head > span
+) {
+  color: rgba(255, 255, 255, 0.46) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.075) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-table td,
+  .personnel-table td,
+  .user-mgmt-table td,
+  .bid-analysis-json-table td,
+  .rd-evidence-content td
+) {
+  color: var(--yb-text-soft);
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.065) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .asset-library-tab.is-active,
+  .bid-analysis-task-item.is-active,
+  .global-facts-item.is-active,
+  .content-outline-item.is-active,
+  .outline-tree-item.is-active,
+  .ai-diagnostic-row.is-active
+) {
+  color: rgba(255, 255, 255, 0.92) !important;
+  background: linear-gradient(90deg, rgba(53, 216, 131, 0.12), rgba(255, 255, 255, 0.035)) !important;
+  border-color: rgba(53, 216, 131, 0.2) !important;
+  box-shadow: inset 2px 0 #35d883;
+}
+
+html[data-theme='soc-dark'] :where(
+  .font-picker-menu,
+  .font-picker-summary,
+  .export-bullet-option.is-active
+) {
+  color: var(--yb-text) !important;
+  background: rgba(14, 19, 16, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme='soc-dark'] :where(
+  .remote-notice-content,
+  .docs-preview-pane,
+  .knowledge-item-card pre,
+  .ai-http-error-preview pre
+) {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(8, 12, 10, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+/* 使用文档是应用内阅读器，不属于 Word 白纸预览；深色主题下保持可读的玻璃表面。 */
+html[data-theme='soc-dark'] :where(.docs-sidebar, .docs-article) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(155deg, rgba(20, 27, 23, 0.94), rgba(10, 14, 12, 0.9)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] .docs-nav-item.is-active {
+  color: #72eca9 !important;
+  background: rgba(53, 216, 131, 0.12) !important;
+}
+
+html[data-theme='soc-dark'] .docs-nav-item:hover {
+  color: var(--yb-text) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .feedback-faq,
+  .feedback-form,
+  .feedback-row,
+  .feedback-detail-card,
+  .feedback-reply-form
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.95), rgba(9, 13, 11, 0.92)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22) !important;
+}
+
+html[data-theme='soc-dark'] .feedback-image-add {
+  color: var(--yb-text-muted) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.13) !important;
+}
+
+html[data-theme='soc-dark'] .template-library-card.is-active {
+  color: var(--yb-text) !important;
+  background: linear-gradient(135deg, rgba(53, 216, 131, 0.14), rgba(255, 255, 255, 0.035)) !important;
+  border-color: rgba(53, 216, 131, 0.3) !important;
+  box-shadow: inset 3px 0 #35d883, 0 16px 34px rgba(0, 0, 0, 0.18) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .content-generation-command-bar,
+  .content-generation-progress-card,
+  .content-generation-workspace,
+  .content-outline-panel,
+  .content-reader-panel,
+  .content-reader-head,
+  .content-dev-stats-panel
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 22px 48px rgba(0, 0, 0, 0.23) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .content-outline-item:hover,
+  .content-outline-item.is-active
+) {
+  color: var(--yb-text) !important;
+  background: rgba(53, 216, 131, 0.1) !important;
+  border-color: rgba(53, 216, 131, 0.24) !important;
+  box-shadow: inset 2px 0 #35d883 !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-hero,
+  .rd-side-card,
+  .rd-table-card,
+  .rd-evidence-card,
+  .rd-inline-notice,
+  .rd-task-strip,
+  .rd-validation-dialog
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 22px 48px rgba(0, 0, 0, 0.23) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-hero h1,
+  .rd-card-head h2,
+  .rd-side-card h2,
+  .rd-evidence-card h2,
+  .rd-dialog-head h2,
+  .rd-side-card dd,
+  .rd-validation-card strong
+) {
+  color: var(--yb-text) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-hero p,
+  .rd-card-head small,
+  .rd-dialog-head p,
+  .rd-side-card dt,
+  .rd-field-box span
+) {
+  color: var(--yb-text-soft) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-side-card dl div,
+  .rd-field-box,
+  .rd-validation-card,
+  .rd-evidence-content
+) {
+  color: var(--yb-text) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-table-card th,
+  .rd-table-card td
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(10, 14, 12, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.085) !important;
+}
+
+html[data-theme='soc-dark'] .rd-table-card th {
+  color: rgba(255, 255, 255, 0.68) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+
+html[data-theme='soc-dark'] .rd-table-card tr.is-selected td {
+  background: rgba(53, 216, 131, 0.08) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-field-box input,
+  .rd-table-card textarea,
+  .rd-table-card select
+) {
+  color: var(--yb-text) !important;
+  background: rgba(0, 0, 0, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.11) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .knowledge-workspace-bar,
+  .knowledge-create-folder-bar,
+  .knowledge-folder-panel,
+  .knowledge-document-panel,
+  .knowledge-preview-panel,
+  .knowledge-viewer-panel
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 18px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-theme='soc-dark'] .knowledge-folder-card.is-active {
+  color: var(--yb-text) !important;
+  background: rgba(53, 216, 131, 0.1) !important;
+  border-color: rgba(53, 216, 131, 0.26) !important;
+  box-shadow: inset 2px 0 #35d883 !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .knowledge-folder-actions button,
+  .knowledge-document-actions button,
+  .knowledge-preview-tabs button
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .knowledge-folder-card:hover:not(.is-active):not(.is-dragging),
+  .knowledge-document-card:hover:not(.is-dragging)
+) {
+  color: var(--yb-text) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(53, 216, 131, 0.18) !important;
+}
+
+/* 生产子页面覆盖：技术方案 STEP 01-05、已有方案扩写与知识库体系。 */
+html[data-theme='soc-dark'] :where(
+  .analysis-import-card,
+  .analysis-result-card,
+  .analysis-markdown-card,
+  .technical-document-upload-board,
+  .technical-document-reader-card,
+  .bid-analysis-command-bar,
+  .bid-analysis-workspace,
+  .global-facts-command-bar,
+  .global-facts-workspace,
+  .subject-replacement-card,
+  .outline-command-bar,
+  .outline-generation-workspace,
+  .outline-progress-panel,
+  .outline-detail-panel,
+  .knowledge-migration-card,
+  .asset-library-head,
+  .asset-library-toolbar,
+  .asset-editor-card,
+  .asset-preview-card,
+  .personnel-detail-card
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  background-color: #0e1411 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.05), 0 20px 46px rgba(0, 0, 0, 0.22) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .technical-document-upload-row,
+  .document-switch-tabs,
+  .bid-analysis-task-pane,
+  .bid-analysis-json-table-wrap,
+  .global-facts-panel,
+  .global-facts-empty-list,
+  .global-facts-reader,
+  .global-facts-reader-head,
+  .global-facts-editor-grid,
+  .global-facts-preview-pane,
+  .subject-replacement-row,
+  .subject-identity-alias-panel,
+  .subject-identity-evidence-item,
+  .export-template-select-list-panel,
+  .export-template-select-preview,
+  .export-template-select-preview-head,
+  .workflow-switch-summary,
+  .outline-coverage-dialog,
+  .outline-coverage-source-card,
+  .agent-question-card,
+  .agent-question-summary,
+  .agent-question-option,
+  .outline-expansion-mode-option,
+  .outline-agent-debug-option,
+  .outline-mirror-procurement-row,
+  .outline-v2-word-control,
+  .bid-section-card,
+  .outline-knowledge-empty,
+  .outline-knowledge-browser,
+  .outline-knowledge-selected-pane,
+  .outline-detail-coverage-card,
+  .outline-detail-coverage-row,
+  .export-response-next-card,
+  .knowledge-migration-stats > div,
+  .asset-library-tab.is-active .asset-library-tab-count,
+  .personnel-table
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)) !important;
+  background-color: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04), 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme='soc-dark'] :where(
+  .technical-document-upload-label span,
+  .outline-coverage-table th,
+  .asset-library-tab.is-active .asset-library-tab-count.is-danger
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .bid-analysis-mode-pill:hover:not(:disabled),
+  .bid-analysis-config-preset:hover:not(:disabled),
+  .bid-section-card:hover:not(:disabled),
+  .agent-question-option:hover,
+  .outline-expansion-mode-option:hover,
+  .outline-agent-debug-option:hover
+) {
+  color: var(--yb-text) !important;
+  background: rgba(53, 216, 131, 0.08) !important;
+  border-color: rgba(53, 216, 131, 0.22) !important;
+}
+
+html[data-theme='soc-dark'] .subject-identity-evidence-item.needs-review,
+html[data-theme='soc-dark'] .outline-coverage-status-pill.is-partial,
+html[data-theme='soc-dark'] .outline-detail-coverage-row.is-partial span {
+  color: #ffc35f !important;
+  background: rgba(240, 160, 32, 0.11) !important;
+  border-color: rgba(240, 160, 32, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .outline-coverage-status-pill.is-covered,
+  .outline-coverage-status-pill.is-repaired,
+  .outline-tree-coverage-badge.is-covered,
+  .outline-tree-coverage-badge.is-repaired,
+  .outline-detail-coverage-row.is-covered span,
+  .outline-detail-coverage-row.is-repaired span
+) {
+  color: #72eca9 !important;
+  background: rgba(53, 216, 131, 0.11) !important;
+  border-color: rgba(53, 216, 131, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .outline-coverage-status-pill.is-missing,
+  .outline-tree-coverage-badge.is-missing,
+  .outline-detail-coverage-row.is-missing span
+) {
+  color: #ff8189 !important;
+  background: rgba(208, 48, 80, 0.11) !important;
+  border-color: rgba(255, 104, 113, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] .outline-tree-coverage-badge.is-partial {
+  color: #ffc35f !important;
+  background: rgba(240, 160, 32, 0.11) !important;
+  border-color: rgba(240, 160, 32, 0.24) !important;
+}
+
+/* 生产子页面覆盖：查重、废标、格式、资源、文档、设置与管理页面。 */
+html[data-theme='soc-dark'] :where(
+  .workspace-database-gate,
+  .duplicate-upload-board,
+  .duplicate-guide-panel,
+  .duplicate-analysis-panel,
+  .duplicate-analysis-content,
+  .duplicate-outline-card,
+  .duplicate-outline-files,
+  .duplicate-outline-groups,
+  .export-template-fullscreen-dialog,
+  .template-library-panel,
+  .template-library-preview-shell,
+  .prompt-table-system,
+  .prompt-edit-card,
+  .rejection-upload-board,
+  .rejection-reader-card,
+  .rejection-result-command-bar,
+  .rejection-check-result-panel,
+  .rejection-check-result-content,
+  .rd-empty-page,
+  .rd-dialog-section,
+  .image-test-preview,
+  .about-update-card,
+  .privacy-statement,
+  .ai-diagnostics-hero,
+  .ai-diagnostics-list,
+  .ai-diagnosis-card,
+  .mermaid-preview-card
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  background-color: #0e1411 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.05), 0 20px 46px rgba(0, 0, 0, 0.22) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .project-summary-biditem,
+  .docs-tabs,
+  .feedback-subtab,
+  .duplicate-upload-row,
+  .duplicate-dimension-grid article,
+  .duplicate-guide-list li,
+  .duplicate-metadata-status-grid article,
+  .duplicate-outline-files button,
+  .duplicate-outline-groups article,
+  .duplicate-file-codebar span,
+  .duplicate-match-card,
+  .duplicate-image-grid article,
+  .export-format-heading-note-toggle,
+  .export-format-heading-note-label,
+  .export-format-heading-token-grid > span,
+  .export-format-heading-example-list > span,
+  .export-format-heading-note code,
+  .export-template-error-state,
+  .template-library-empty,
+  .template-library-preview-empty,
+  .rejection-upload-row,
+  .rejection-result-status,
+  .rejection-bid-result-filter button,
+  .rejection-finding-item,
+  .rejection-finding-detail-block,
+  .rd-evidence-meta span,
+  .rd-field-confirm-grid div,
+  .rd-issue,
+  .agent-self-check-step,
+  .agent-tool-check-item,
+  .parser-card-primary,
+  .parser-card-accent,
+  .parser-metrics div,
+  .privacy-item,
+  .ai-diagnostics-statbar span,
+  .ai-diagnostics-alert,
+  .ai-diagnostics-list-head,
+  .ai-diagnostics-detail,
+  .ai-diagnostic-row,
+  .ai-diagnostics-meta-grid span,
+  .ai-diagnostics-actions,
+  .ai-diagnostic-attempt-metrics span,
+  .markdown-empty-state
+) {
+  color: var(--yb-text-soft) !important;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)) !important;
+  background-color: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .duplicate-upload-label span,
+  .duplicate-metadata-table th:first-child,
+  .duplicate-metadata-table thead th,
+  .rejection-upload-label span,
+  .detail-help-close
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .export-format-heading-cell-color-grid input,
+  .export-format-heading-grid select,
+  .export-format-heading-grid input,
+  .input-with-action-button
+) {
+  color: var(--yb-text) !important;
+  background: rgba(0, 0, 0, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.11) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .duplicate-analysis-tab.is-active,
+  .rejection-check-result-tab.is-active,
+  .feedback-subtab.is-active
+) {
+  color: #72eca9 !important;
+  background: rgba(53, 216, 131, 0.12) !important;
+  border-color: rgba(53, 216, 131, 0.26) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .duplicate-metadata-table td.is-duplicate,
+  .duplicate-outline-groups article.is-duplicate,
+  .rd-validation-error,
+  .rd-validation-error .rd-validation-pills span,
+  .rd-issue-error,
+  .ai-diagnostic-status.is-danger
+) {
+  color: #ff8189 !important;
+  background: rgba(208, 48, 80, 0.11) !important;
+  border-color: rgba(255, 104, 113, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-status-confirmed,
+  .rd-validation-ok .rd-validation-pills span,
+  .rd-retention-row .is-ok,
+  .ai-diagnostic-status.is-success
+) {
+  color: #72eca9 !important;
+  background: rgba(53, 216, 131, 0.11) !important;
+  border-color: rgba(53, 216, 131, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-status-stale,
+  .rd-validation-warning .rd-validation-pills span,
+  .rd-retention-row .is-warning,
+  .rd-issue-warning,
+  .ai-diagnostic-status.is-warning
+) {
+  color: #ffc35f !important;
+  background: rgba(240, 160, 32, 0.11) !important;
+  border-color: rgba(240, 160, 32, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-status-empty,
+  .rd-status-review,
+  .rd-status-detecting,
+  .ai-diagnostic-status,
+  .ai-diagnostic-status.is-muted
+) {
+  color: #8ab9ff !important;
+  background: rgba(51, 126, 255, 0.11) !important;
+  border-color: rgba(76, 139, 245, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-requirement th,
+  .rd-requirement td,
+  .rd-evidence-content th,
+  .rd-evidence-content td
+) {
+  color: var(--yb-text-soft) !important;
+  background: rgba(10, 14, 12, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.085) !important;
+}
+
+html[data-theme='soc-dark'] .image-test-preview img {
+  background: #0b100d !important;
+}
+
+html[data-theme='soc-dark'] .yb-switch-track {
+  background: rgba(255, 255, 255, 0.11) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .settings-tab-shell,
+  .settings-page-section
+) {
+  color: var(--yb-text) !important;
+  background: linear-gradient(150deg, rgba(20, 27, 23, 0.96), rgba(9, 13, 11, 0.93)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 20px 46px rgba(0, 0, 0, 0.22) !important;
+}
+
+html[data-theme='soc-dark'] .settings-tab {
+  color: var(--yb-text-soft) !important;
+}
+
+html[data-theme='soc-dark'] .settings-tab.is-active {
+  color: #72eca9 !important;
+  background: rgba(53, 216, 131, 0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(53, 216, 131, 0.18) !important;
+}
+
+html[data-theme='soc-dark'] .settings-tab:hover:not(.is-active) {
+  color: var(--yb-text) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 黄色/红色校验提示保留语义但降低浅色底亮度。 */
+html[data-theme='soc-dark'] :where(
+  .rd-issue.is-warning,
+  .rd-warning,
+  .required-online-services-offline-note
+) {
+  color: #ffc35f !important;
+  background: rgba(240, 160, 32, 0.1) !important;
+  border-color: rgba(240, 160, 32, 0.24) !important;
+}
+
+html[data-theme='soc-dark'] :where(
+  .rd-issue.is-error,
+  .rd-error,
+  .ai-http-error-description
+) {
+  color: #ff8189 !important;
+  background: rgba(208, 48, 80, 0.1) !important;
+  border-color: rgba(255, 104, 113, 0.24) !important;
+}
+
+/* 二级功能菜单必须显式覆盖历史浅色渐变，避免 SOC 深色下出现浅底白字。 */
+html[data-theme='soc-dark'] .secondary-menu-list-panel {
+  color: var(--yb-text);
+  background: linear-gradient(150deg, rgba(24, 31, 27, 0.96), rgba(10, 14, 12, 0.94)) !important;
+  background-color: #0e1411 !important;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.055),
+    0 24px 58px rgba(0, 0, 0, 0.34),
+    0 0 44px rgba(53, 216, 131, 0.035);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list-head {
+  color: var(--yb-text);
+  background:
+    radial-gradient(circle at 88% 0%, rgba(99, 179, 255, 0.13), transparent 34%),
+    radial-gradient(circle at 10% 100%, rgba(53, 216, 131, 0.1), transparent 36%),
+    linear-gradient(135deg, rgba(28, 36, 31, 0.96), rgba(12, 17, 14, 0.94)) !important;
+  background-color: #101713 !important;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.055);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list-head::before {
+  box-shadow: 0 0 18px rgba(53, 216, 131, 0.32);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list-head::after {
+  background: linear-gradient(90deg, transparent, rgba(99, 179, 255, 0.34));
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list-head span,
+html[data-theme='soc-dark'] .secondary-menu-row-copy strong {
+  color: rgba(246, 251, 248, 0.94);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list-head p,
+html[data-theme='soc-dark'] .secondary-menu-row-copy small {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-list {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-row {
+  color: var(--yb-text);
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-row:hover,
+html[data-theme='soc-dark'] .secondary-menu-row:focus-visible {
+  background: linear-gradient(90deg, rgba(53, 216, 131, 0.085), rgba(255, 255, 255, 0.025));
+}
+
+html[data-theme='soc-dark'] .secondary-menu-row-icon {
+  color: #4de193;
+  background: linear-gradient(150deg, rgba(53, 216, 131, 0.1), rgba(99, 179, 255, 0.065));
+  border-color: rgba(53, 216, 131, 0.17);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-row-arrow {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+html[data-theme='soc-dark'] .secondary-menu-row:hover .secondary-menu-row-arrow,
+html[data-theme='soc-dark'] .secondary-menu-row:focus-visible .secondary-menu-row-arrow {
+  color: #62e59a;
+  background: rgba(53, 216, 131, 0.08);
+}
+
+/* 分层动态：一级表面低频呼吸，列表卡片只入场，避免正文和密集数据持续晃动。 */
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .asset-expiry-widget,
+  .secondary-menu-list-panel,
+  .export-format-preset-card,
+  .export-format-theme-card,
+  .duplicate-outline-card,
+  .duplicate-outline-tree-card,
+  .rejection-reader-card,
+  .rejection-result-card,
+  .rejection-check-config-card,
+  .knowledge-stat-card,
+  .parser-card,
+  .about-info-card,
+  .about-update-card,
+  .ai-diagnosis-card,
+  .rd-side-card,
+  .rd-evidence-card,
+  .content-generation-progress-card,
+  .outline-coverage-summary-card,
+  .technical-document-upload-board,
+  .technical-document-reader-card,
+  .bid-analysis-command-bar,
+  .bid-analysis-workspace,
+  .global-facts-command-bar,
+  .global-facts-workspace,
+  .outline-command-bar,
+  .outline-generation-workspace,
+  .outline-progress-panel,
+  .outline-detail-panel,
+  .knowledge-workspace-bar,
+  .knowledge-folder-panel,
+  .knowledge-document-panel,
+  .knowledge-viewer-panel,
+  .asset-library-head,
+  .asset-library-toolbar,
+  .duplicate-upload-board,
+  .duplicate-guide-panel,
+  .duplicate-analysis-panel,
+  .rejection-upload-board,
+  .rejection-check-result-panel,
+  .template-library-panel,
+  .template-library-preview-shell,
+  .ai-diagnostics-hero
+) {
+  --soc-enter-delay: 0ms;
+  animation:
+    socCardEnter 520ms cubic-bezier(0.22, 0.9, 0.28, 1) var(--soc-enter-delay) backwards,
+    socSurfaceBreath 7.2s ease-in-out calc(640ms + var(--soc-enter-delay)) infinite;
+}
+
+html[data-theme='soc-dark'] :where(
+  .secondary-menu-row,
+  .asset-card,
+  .template-library-card,
+  .knowledge-folder-card,
+  .knowledge-document-card,
+  .feedback-row,
+  .personnel-cert-row,
+  .duplicate-match-card,
+  .rejection-finding-item,
+  .about-links-item,
+  .privacy-item
+) {
+  --soc-enter-delay: 60ms;
+  animation: socCardEnter 520ms cubic-bezier(0.22, 0.9, 0.28, 1) var(--soc-enter-delay) backwards;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stats,
+  .secondary-menu-list,
+  .asset-card-grid,
+  .template-library-list,
+  .knowledge-folder-list,
+  .knowledge-document-list
+) > :nth-child(2) {
+  --soc-enter-delay: 100ms;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stats,
+  .secondary-menu-list,
+  .asset-card-grid,
+  .template-library-list,
+  .knowledge-folder-list,
+  .knowledge-document-list
+) > :nth-child(3) {
+  --soc-enter-delay: 150ms;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stats,
+  .secondary-menu-list,
+  .asset-card-grid,
+  .template-library-list,
+  .knowledge-folder-list,
+  .knowledge-document-list
+) > :nth-child(4) {
+  --soc-enter-delay: 200ms;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stats,
+  .secondary-menu-list,
+  .asset-card-grid,
+  .template-library-list,
+  .knowledge-folder-list,
+  .knowledge-document-list
+) > :nth-child(n + 5) {
+  --soc-enter-delay: 250ms;
+}
+
+/* 只给未占用 ::after 的交互卡片增加扫光，伪元素不接管点击。 */
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .secondary-menu-row,
+  .export-format-preset-card,
+  .export-format-theme-card,
+  .template-library-card,
+  .feedback-row
+) {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 220ms cubic-bezier(0.22, 0.9, 0.28, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .secondary-menu-row,
+  .export-format-preset-card,
+  .export-format-theme-card,
+  .template-library-card,
+  .feedback-row
+)::after {
+  position: absolute;
+  top: -48%;
+  bottom: -48%;
+  left: -54%;
+  width: 28%;
+  content: '';
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(221, 255, 237, 0.16), transparent);
+  transform: skewX(-18deg);
+  mix-blend-mode: screen;
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .secondary-menu-row,
+  .export-format-preset-card,
+  .export-format-theme-card,
+  .template-library-card:not(.is-active),
+  .feedback-row
+):hover {
+  border-color: rgba(53, 216, 131, 0.24) !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.075),
+    0 20px 44px rgba(0, 0, 0, 0.26),
+    0 0 28px rgba(53, 216, 131, 0.075) !important;
+  transform: translate3d(0, -3px, 0);
+}
+
+html[data-theme='soc-dark'] :where(
+  .dashboard-stat,
+  .secondary-menu-row,
+  .export-format-preset-card,
+  .export-format-theme-card,
+  .template-library-card,
+  .feedback-row
+):hover::after {
+  animation: socCardShine 460ms ease-out 1;
+}
+
+html[data-theme='soc-dark'] .content-shell::after {
+  transform-origin: 52% 46%;
+  animation: socOrbitDrift 24s ease-in-out infinite;
+}
+
+html[data-theme='soc-dark'] .project-switcher-label::before {
+  animation: socStatusPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes socCardEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes socSurfaceBreath {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(53, 216, 131, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 13px rgba(53, 216, 131, 0.11));
+  }
+}
+
+@keyframes socCardShine {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) skewX(-18deg);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(560%, 0, 0) skewX(-18deg);
+  }
+}
+
+@keyframes socOrbitDrift {
+  0%,
+  100% {
+    opacity: 0.36;
+    transform: translate3d(-1.2%, -0.5%, 0) rotate(-8deg) scale(0.99);
+  }
+  50% {
+    opacity: 0.64;
+    transform: translate3d(1.8%, 1.1%, 0) rotate(-5deg) scale(1.025);
+  }
+}
+
+@keyframes socStatusPulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    box-shadow: 0 0 7px rgba(53, 216, 131, 0.36);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(53, 216, 131, 0.72);
+  }
+}
+
+/* Markdown 普通阅读器深色；导出格式预览在其后重新声明白纸。 */
+html[data-theme='soc-dark'] .markdown-viewer:not(.export-format-preview) .markdown-table-scroll,
+html[data-theme='soc-dark'] .markdown-viewer:not(.export-format-preview) :where(th, td) {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+html[data-theme='soc-dark'] .markdown-viewer.export-format-preview,
+html[data-theme='soc-dark'] .markdown-viewer.export-format-preview .markdown-table-scroll,
+html[data-theme='soc-dark'] .markdown-viewer.export-format-preview :where(th, td) {
+  color: var(--yb-paper-text) !important;
+  background: var(--yb-paper-bg) !important;
+  border-color: #dfe3e8 !important;
+}
+
+/* 开关滑块保留亮色实体，保证深色轨道上的位置可见。 */
+html[data-theme='soc-dark'] :where(
+  .yb-switch-thumb,
+  .prompt-switch-thumb,
+  .content-generation-switch-thumb
+) {
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.34);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme='soc-dark'] *,
+  html[data-theme='soc-dark'] *::before,
+  html[data-theme='soc-dark'] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html[data-theme='soc-dark'] :where(
+    .content-shell,
+    .project-switcher-label,
+    .dashboard-stat,
+    .asset-expiry-widget,
+    .secondary-menu-list-panel,
+    .secondary-menu-row,
+    .export-format-preset-card,
+    .export-format-theme-card,
+    .template-library-card,
+    .asset-card,
+    .knowledge-folder-card,
+    .knowledge-document-card,
+    .feedback-row,
+    .personnel-cert-row,
+    .duplicate-outline-card,
+    .duplicate-outline-tree-card,
+    .duplicate-match-card,
+    .rejection-reader-card,
+    .rejection-result-card,
+    .rejection-check-config-card,
+    .rejection-finding-item,
+    .knowledge-stat-card,
+    .parser-card,
+    .about-info-card,
+    .about-update-card,
+    .about-links-item,
+    .privacy-item,
+    .ai-diagnosis-card,
+    .rd-side-card,
+    .rd-evidence-card,
+    .content-generation-progress-card,
+    .outline-coverage-summary-card,
+    .technical-document-upload-board,
+    .technical-document-reader-card,
+    .bid-analysis-command-bar,
+    .bid-analysis-workspace,
+    .global-facts-command-bar,
+    .global-facts-workspace,
+    .outline-command-bar,
+    .outline-generation-workspace,
+    .outline-progress-panel,
+    .outline-detail-panel,
+    .knowledge-workspace-bar,
+    .knowledge-folder-panel,
+    .knowledge-document-panel,
+    .knowledge-viewer-panel,
+    .asset-library-head,
+    .asset-library-toolbar,
+    .duplicate-upload-board,
+    .duplicate-guide-panel,
+    .duplicate-analysis-panel,
+    .rejection-upload-board,
+    .rejection-check-result-panel,
+    .template-library-panel,
+    .template-library-preview-shell,
+    .ai-diagnostics-hero
+  ),
+  html[data-theme='soc-dark'] :where(
+    .content-shell,
+    .project-switcher-label,
+    .dashboard-stat,
+    .secondary-menu-row,
+    .export-format-preset-card,
+    .export-format-theme-card,
+    .template-library-card,
+    .feedback-row
+  )::before,
+  html[data-theme='soc-dark'] :where(
+    .content-shell,
+    .dashboard-stat,
+    .secondary-menu-row,
+    .export-format-preset-card,
+    .export-format-theme-card,
+    .template-library-card,
+    .feedback-row
+  )::after {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}

@@ -40,7 +40,7 @@ function AppShell({ activeSection, children, developerMode, onSectionChange }: A
         <Sidebar activeSection={activeSection} developerMode={developerMode} onSectionChange={onSectionChange} />
 
         <main className="main-area">
-          <AppTopbar />
+          <AppTopbar showThemeToggle />
           <section className="content-shell" aria-label="主内容">
             {children}
           </section>

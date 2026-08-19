@@ -17,7 +17,7 @@ export default function LoginPage() {
     clearInitialPasswordChange,
   } = useAuth();
   const { data: systemSettings } = useSystemSettings();
-  const systemName = systemSettings?.systemName || '金盾标书编制系统';
+  const systemName = systemSettings?.systemName || '易标投标工具箱web版';
   const logoSrc = systemSettings?.logoDataUrl || logoUrl;
 
   // 浏览器标签标题跟随系统名（DB 可配）。登录态在 AppTopbar 同步。

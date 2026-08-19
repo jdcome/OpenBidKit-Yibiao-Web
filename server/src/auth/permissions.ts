@@ -3,7 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 
 // 可授予普通用户的功能模块 section id（user-management 恒不授予——仅管理员可用）。
 // 与 client/src/shared/permissions.ts ASSIGNABLE_MODULES 保持同源。
-export const ASSIGNABLE_MODULE_IDS = ['template-settings', 'knowledge-base', 'bid-check', 'resources', 'docs', 'faq'] as const;
+export const ASSIGNABLE_MODULE_IDS = ['template-settings', 'knowledge-base', 'bid-check', 'docs', 'faq'] as const;
 
 // 默认对所有登录用户开放的模块（不进授予集）：仪表盘、标书生成、设置。
 export const DEFAULT_OPEN_MODULE_IDS = ['dashboard', 'bid-generation'] as const;

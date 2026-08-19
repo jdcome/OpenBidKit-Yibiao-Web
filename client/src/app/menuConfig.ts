@@ -10,7 +10,7 @@ export const appMenuItems: AppMenuItem[] = [
   {
     id: 'bid-generation',
     label: '标书生成',
-    description: '技术方案、商务标与响应偏离表编制',
+    description: '技术方案、投标计算器与响应偏离表编制',
     children: [
       {
         id: 'technical-plan',
@@ -26,8 +26,8 @@ export const appMenuItems: AppMenuItem[] = [
       },
       {
         id: 'business-bid',
-        label: '商务标',
-        description: '整理商务响应、报价口径和合同偏离材料。',
+        label: '投标计算器',
+        description: '综合报价、技术、商务评分标准计算标书最终得分',
         icon: 'briefcase',
         notice: { message: '正在开发中，敬请期待。' },
       },
@@ -107,11 +107,6 @@ export const appMenuItems: AppMenuItem[] = [
         icon: 'shield',
       },
     ],
-  },
-  {
-    id: 'resources',
-    label: '资源下载',
-    description: '投标相关资料、工具下载',
   },
   {
     id: 'docs',

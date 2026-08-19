@@ -20,7 +20,7 @@ function SecondaryMenuPage({ menuItem, onNavigate }: SecondaryMenuPageProps) {
   const [showCreate, setShowCreate] = useState(false);
 
   // 第4点：点「生成技术方案」时按完成度分支。存在未完成项目 → 切到最近更新的未完成项目并进入流程；
-  // 全部完成或无项目 → 弹确认 → 新建并进入。「已有方案扩写」「商务标」不经过此守卫。
+  // 全部完成或无项目 → 弹确认 → 新建并进入。「已有方案扩写」「投标计算器」不经过此守卫。
   const guardTechnicalPlan = async () => {
     const incomplete = [...projects]
       .filter((p) => p.isComplete === false)

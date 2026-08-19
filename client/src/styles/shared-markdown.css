@@ -498,8 +498,7 @@
 }
 
 .markdown-fullscreen-frame > .markdown-viewer,
-.markdown-fullscreen-frame > .remote-notice-content,
-.markdown-fullscreen-frame > .resource-detail-markdown {
+.markdown-fullscreen-frame > .remote-notice-content {
   min-height: 0;
 }
 
@@ -599,8 +598,7 @@
 }
 
 .markdown-fullscreen-content > .markdown-viewer,
-.markdown-fullscreen-content > .remote-notice-content,
-.markdown-fullscreen-content > .resource-detail-markdown {
+.markdown-fullscreen-content > .remote-notice-content {
   width: min(1120px, 100%);
   height: 100%;
   max-height: none;
