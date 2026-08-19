@@ -1,9 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import {
   canSubmitInitialPasswordChange,
   getInitialPasswordRuleState,
+  getInitialPasswordRuleStatusText,
   preventInitialPasswordDialogDismiss,
+  shouldResetInitialPasswordDialogState,
 } from '../shared/auth/initialPasswordRules';
 
 interface InitialPasswordChangeDialogProps {
@@ -28,20 +30,35 @@ function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: I
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const previousExpiresAtRef = useRef<number | null>(null);
+  const newPasswordId = useId();
+  const confirmPasswordId = useId();
+  const ruleListId = useId();
+  const mismatchId = useId();
+  const serverErrorId = useId();
 
   const ruleState = getInitialPasswordRuleState(newPassword);
+  const rulesSatisfied = Object.values(ruleState).every(Boolean);
   const confirmationMismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
   const canSubmit = canSubmitInitialPasswordChange(newPassword, confirmPassword) && !busy;
+  const newPasswordDescribedBy = [ruleListId, error ? serverErrorId : null].filter(Boolean).join(' ');
+  const confirmPasswordDescribedBy = [
+    ruleListId,
+    confirmationMismatch ? mismatchId : null,
+    error ? serverErrorId : null,
+  ].filter(Boolean).join(' ');
 
-  useEffect(() => {
-    if (!open) return;
+  useLayoutEffect(() => {
+    const previousExpiresAt = previousExpiresAtRef.current;
+    previousExpiresAtRef.current = expiresAt;
+    if (!shouldResetInitialPasswordDialogState(open, previousExpiresAt, expiresAt)) return;
     setNewPassword('');
     setConfirmPassword('');
     setShowNewPassword(false);
     setShowConfirmPassword(false);
     setBusy(false);
     setError('');
-  }, [open]);
+  }, [expiresAt, open]);
 
   useEffect(() => {
     if (!open || expiresAt === null) return undefined;
@@ -100,16 +117,19 @@ function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: I
             </div>
 
             <div className="initial-password-dialog-fields">
-              <label className="login-field">
-                <span>新密码</span>
+              <div className="login-field">
+                <label htmlFor={newPasswordId}>新密码</label>
                 <span className="initial-password-input-wrap">
                   <input
+                    id={newPasswordId}
                     autoFocus
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
                     placeholder="请输入新密码"
                     autoComplete="new-password"
+                    aria-describedby={newPasswordDescribedBy}
+                    aria-invalid={(newPassword.length > 0 && !rulesSatisfied) || Boolean(error)}
                   />
                   <button
                     type="button"
@@ -121,18 +141,20 @@ function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: I
                     {showNewPassword ? '隐藏' : '显示'}
                   </button>
                 </span>
-              </label>
+              </div>
 
-              <label className="login-field">
-                <span>确认新密码</span>
+              <div className="login-field">
+                <label htmlFor={confirmPasswordId}>确认新密码</label>
                 <span className="initial-password-input-wrap">
                   <input
+                    id={confirmPasswordId}
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(event) => setConfirmPassword(event.target.value)}
                     placeholder="请再次输入新密码"
                     autoComplete="new-password"
-                    aria-invalid={confirmationMismatch}
+                    aria-describedby={confirmPasswordDescribedBy}
+                    aria-invalid={confirmationMismatch || Boolean(error)}
                   />
                   <button
                     type="button"
@@ -144,22 +166,33 @@ function InitialPasswordChangeDialog({ open, expiresAt, onSubmit, onExpired }: I
                     {showConfirmPassword ? '隐藏' : '显示'}
                   </button>
                 </span>
-              </label>
+              </div>
             </div>
 
-            <ul className="initial-password-rule-list" aria-label="新密码要求">
+            <ul
+              id={ruleListId}
+              className="initial-password-rule-list"
+              aria-label="新密码要求"
+              aria-live="polite"
+            >
               {RULE_LABELS.map(([rule, label]) => (
                 <li key={rule} className={ruleState[rule] ? 'is-valid' : 'is-invalid'}>
-                  <span aria-hidden="true">{ruleState[rule] ? '✓' : '○'}</span>
-                  {label}
+                  <span className="initial-password-rule-status">
+                    {getInitialPasswordRuleStatusText(ruleState[rule])}：
+                  </span>
+                  <span>{label}</span>
                 </li>
               ))}
             </ul>
 
-            {confirmationMismatch && (
-              <p className="login-message is-error">两次输入的密码不一致</p>
+            {(confirmationMismatch || error) && (
+              <div className="initial-password-validation-summary" role="alert" aria-atomic="true">
+                {confirmationMismatch && (
+                  <p id={mismatchId} className="login-message is-error">两次输入的密码不一致</p>
+                )}
+                {error && <p id={serverErrorId} className="login-message is-error">{error}</p>}
+              </div>
             )}
-            {error && <p className="login-message is-error">{error}</p>}
 
             <button type="submit" className="primary-action initial-password-submit" disabled={!canSubmit}>
               {busy ? '修改中…' : '修改密码并进入系统'}

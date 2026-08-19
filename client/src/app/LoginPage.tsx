@@ -224,6 +224,7 @@ export default function LoginPage() {
       </form>
 
       <InitialPasswordChangeDialog
+        key={initialPasswordChange?.expiresAt ?? 'closed'}
         open={initialPasswordChange !== null}
         expiresAt={initialPasswordChange?.expiresAt ?? null}
         onSubmit={changeInitialPassword}

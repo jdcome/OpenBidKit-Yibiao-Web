@@ -47,6 +47,18 @@ export function preventInitialPasswordDialogDismiss(event: { preventDefault(): v
   event.preventDefault();
 }
 
+export function shouldResetInitialPasswordDialogState(
+  open: boolean,
+  previousExpiresAt: number | null,
+  expiresAt: number | null,
+): boolean {
+  return !open || previousExpiresAt !== expiresAt;
+}
+
+export function getInitialPasswordRuleStatusText(satisfied: boolean): '已满足' | '未满足' {
+  return satisfied ? '已满足' : '未满足';
+}
+
 export function isPasswordChangeRequiredResponse(value: unknown): value is PasswordChangeRequiredResponse {
   if (!value || typeof value !== 'object') return false;
   const response = value as Record<string, unknown>;

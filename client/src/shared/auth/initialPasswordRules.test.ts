@@ -3,10 +3,12 @@ import test from 'node:test';
 import {
   canSubmitInitialPasswordChange,
   getInitialPasswordRuleState,
+  getInitialPasswordRuleStatusText,
   isActiveInitialPasswordChangeSession,
   isAuthenticatedResponse,
   isPasswordChangeRequiredResponse,
   preventInitialPasswordDialogDismiss,
+  shouldResetInitialPasswordDialogState,
 } from './initialPasswordRules';
 
 test('前端密码规则与服务端四类规则一致', () => {
@@ -81,4 +83,15 @@ test('强制改密关闭事件始终被阻止', () => {
   let prevented = false;
   preventInitialPasswordDialogDismiss({ preventDefault: () => { prevented = true; } });
   assert.equal(prevented, true);
+});
+
+test('关闭或切换强制改密会话时必须清理敏感状态', () => {
+  assert.equal(shouldResetInitialPasswordDialogState(false, 1_000, 1_000), true);
+  assert.equal(shouldResetInitialPasswordDialogState(true, 1_000, 2_000), true);
+  assert.equal(shouldResetInitialPasswordDialogState(true, 1_000, 1_000), false);
+});
+
+test('密码规则状态提供明确的可访问公告文本', () => {
+  assert.equal(getInitialPasswordRuleStatusText(true), '已满足');
+  assert.equal(getInitialPasswordRuleStatusText(false), '未满足');
 });

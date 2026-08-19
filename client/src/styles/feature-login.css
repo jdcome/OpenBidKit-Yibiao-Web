@@ -272,10 +272,10 @@
   transition: color var(--yb-duration-fast) ease;
 }
 
-.initial-password-rule-list li span {
-  width: 16px;
+.initial-password-rule-list .initial-password-rule-status {
+  min-width: 48px;
   font-weight: 800;
-  text-align: center;
+  white-space: nowrap;
 }
 
 .initial-password-rule-list li.is-valid {
@@ -284,6 +284,11 @@
 
 .initial-password-rule-list li.is-invalid {
   color: var(--yb-text-muted);
+}
+
+.initial-password-validation-summary {
+  display: grid;
+  gap: 6px;
 }
 
 .initial-password-submit {
