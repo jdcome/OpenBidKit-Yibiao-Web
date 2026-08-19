@@ -1,0 +1,52 @@
+# Environment and credentials
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies and build outputs
+node_modules/
+dist/
+build/
+release/
+coverage/
+*.tsbuildinfo
+
+# Runtime data
+data/
+uploads/
+storage/
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary deployment and cache files
+.tmp_*
+.deploy_*
+tmp/
+temp/
+.cache/
+*.tmp
+*.temp
+*.tar
+*.tar.gz
+*.zip
+
+# Customer and generated office documents
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.pdf
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/settings.json

@@ -1,0 +1,486 @@
+/* 仪表盘页：项目统计卡片 + 项目列表。沿用应用设计令牌与既有面板/表格/弹窗词汇，
+ * 与格式管理、查重等特性保持同一视觉语言（浅色、白卡、渐变蓝主按钮、Radix 白弹窗）。 */
+
+.dashboard-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 28px;
+}
+
+.dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+/* 页头：kicker + 标题/副标题（左），主操作（右） */
+.dashboard-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-head-text {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-head h2 {
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-head p {
+  margin: 0;
+  color: var(--yb-text-soft);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.dashboard-head .primary-action {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.dashboard-head-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 统计卡片 */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.dashboard-stat {
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px;
+  color: var(--yb-text);
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 20px;
+  box-shadow: var(--yb-shadow-xs);
+  transition: box-shadow var(--yb-duration-fast) ease, transform var(--yb-duration-fast) ease;
+}
+
+.dashboard-stat:hover {
+  box-shadow: var(--yb-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.dashboard-stat-label {
+  color: var(--yb-text-soft);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dashboard-stat-value {
+  color: var(--yb-text);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-stat-hint {
+  color: var(--yb-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* 工具栏（搜索 + 状态筛选） */
+.dashboard-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboard-input,
+.dashboard-select {
+  padding: 11px 14px;
+  color: var(--yb-text);
+  font-size: 13.5px;
+  background: #fbfcff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 14px;
+  outline: none;
+  transition: background var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease,
+    box-shadow var(--yb-duration-fast) ease;
+}
+
+.dashboard-input {
+  flex: 1 1 280px;
+  max-width: 360px;
+}
+
+.dashboard-select {
+  min-width: 140px;
+  padding-right: 42px;
+}
+
+.dashboard-input:focus,
+.dashboard-select:focus {
+  background: #ffffff;
+  border-color: rgba(33, 116, 253, 0.38);
+  box-shadow: 0 0 0 4px rgba(33, 116, 253, 0.08);
+}
+
+/* 项目表（镜像 .bid-analysis-json-table） */
+.dashboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--yb-text);
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.dashboard-table thead th {
+  color: var(--yb-text-soft);
+  font-weight: 800;
+  font-size: 12.5px;
+  background: #f6f9ff;
+  border-bottom: 1px solid var(--yb-border-soft);
+}
+
+.dashboard-table tbody tr + tr td {
+  border-top: 1px solid var(--yb-border-soft);
+}
+
+.dashboard-table tbody tr {
+  transition: background var(--yb-duration-fast) ease;
+}
+
+.dashboard-table tbody tr:hover {
+  background: rgba(33, 116, 253, 0.035);
+}
+
+.dashboard-table code {
+  padding: 3px 8px;
+  color: var(--yb-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgba(33, 116, 253, 0.08);
+  border-radius: 8px;
+}
+
+.dashboard-table .col-name strong {
+  color: var(--yb-text);
+  font-weight: 650;
+}
+
+.dashboard-table .col-name small {
+  display: block;
+  margin-top: 3px;
+  color: var(--yb-text-muted);
+  font-size: 12px;
+}
+
+.dashboard-rename-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--yb-text);
+  background: #ffffff;
+  border: 1px solid rgba(33, 116, 253, 0.38);
+  border-radius: 8px;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(33, 116, 253, 0.08);
+}
+
+.dashboard-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* 状态药丸 */
+.dashboard-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* 进度条 */
+.dashboard-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 130px;
+}
+
+.dashboard-progress-track {
+  flex: 1;
+  height: 7px;
+  overflow: hidden;
+  background: var(--yb-border-soft);
+  border-radius: 999px;
+}
+
+.dashboard-progress-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--yb-primary), var(--yb-violet));
+  border-radius: inherit;
+  transition: width var(--yb-duration) var(--yb-ease);
+}
+
+.dashboard-progress-value {
+  color: var(--yb-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dashboard-empty {
+  padding: 36px 24px;
+  text-align: center;
+  color: var(--yb-text-muted);
+  font-size: 13.5px;
+}
+
+/* 新建项目弹窗（镜像 .template-delete-dialog，白卡 + Radix） */
+.create-project-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  width: min(460px, calc(100vw - 32px));
+  max-height: min(680px, calc(100vh - 40px));
+  gap: 14px;
+  padding: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 24px;
+  box-shadow: 0 24px 72px rgba(15, 23, 42, 0.22);
+  transform: translate(-50%, -50%);
+}
+
+.create-project-dialog[data-state='open'] {
+  animation: dashboard-dialog-in var(--yb-duration) var(--yb-ease);
+}
+
+@keyframes dashboard-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.create-project-dialog h2,
+.create-project-dialog [data-radix-dialog-title] {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.create-project-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dashboard-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dashboard-field input,
+.dashboard-field textarea,
+.dashboard-field select {
+  padding: 11px 14px;
+  color: var(--yb-text);
+  font-size: 13.5px;
+  font-weight: 400;
+  background: #fbfcff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 14px;
+  outline: none;
+  resize: vertical;
+  transition: background var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease,
+    box-shadow var(--yb-duration-fast) ease;
+}
+
+.dashboard-field input:focus,
+.dashboard-field textarea:focus,
+.dashboard-field select:focus {
+  background: #ffffff;
+  border-color: rgba(33, 116, 253, 0.38);
+  box-shadow: 0 0 0 4px rgba(33, 116, 253, 0.08);
+}
+
+.dashboard-dialog-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 860px) {
+  .dashboard-page {
+    padding: 18px;
+  }
+
+  .dashboard-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 项目汇总页（只读）：仪表盘「查看」已完成项目进入。复用 dashboard-page/shell 外壳，
+ * 内部三块白卡（招标解析核心信息 / 全局事实 / 技术方案正文）。 */
+.project-summary-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  color: var(--yb-text);
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 18px;
+  box-shadow: var(--yb-shadow-xs);
+}
+
+.project-summary-block > h3 {
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--yb-border-soft);
+}
+
+.project-summary-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-summary-field > h4 {
+  margin: 0;
+  color: var(--yb-primary);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.project-summary-field .markdown-body {
+  color: var(--yb-text-soft);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.project-summary-biditems {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.project-summary-biditem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: #f8faff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 12px;
+}
+
+.project-summary-biditem > strong {
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.project-summary-biditem .markdown-body {
+  color: var(--yb-text-soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.project-summary-empty {
+  margin: 0;
+  color: var(--yb-text-muted);
+  font-size: 13px;
+}
+
+.project-summary-outline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.project-summary-outline-node {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-summary-outline-title {
+  color: var(--yb-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.project-summary-outline-content {
+  color: var(--yb-text-soft);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.project-summary-outline-content .markdown-body {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}

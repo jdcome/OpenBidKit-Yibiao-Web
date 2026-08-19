@@ -1,0 +1,114 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import type { WorkspaceDatabasePhase, WorkspaceDatabaseStatus } from '../shared/types';
+
+interface WorkspaceDatabaseGateProps {
+  children: ReactNode;
+}
+
+const DATABASE_VERSION_TOO_NEW_MARKER = '高于当前客户端支持版本';
+
+const phaseLabels: Record<WorkspaceDatabasePhase, string> = {
+  checking: '正在检查本地数据库',
+  repairing: '正在修复本地数据库结构',
+  'backing-up': '正在备份本地数据库',
+  upgrading: '正在升级本地数据库',
+  ready: '本地数据库已就绪',
+  error: '本地数据库初始化失败',
+};
+
+function WorkspaceDatabaseGate({ children }: WorkspaceDatabaseGateProps) {
+  const [status, setStatus] = useState<WorkspaceDatabaseStatus | null>(null);
+  const [showGate, setShowGate] = useState(false);
+
+  const openReleasePage = async () => {
+    const url = await window.yibiao?.getUpdateDownloadUrl();
+    if (url) {
+      await window.yibiao?.openExternal(url);
+    }
+  };
+
+  useEffect(() => {
+    const database = window.yibiao?.database;
+    if (!database) {
+      setStatus({ phase: 'ready', ready: true, message: '本地数据库已就绪' });
+      return;
+    }
+
+    let mounted = true;
+    const unsubscribe = database.onStatus((nextStatus) => {
+      if (mounted) setStatus(nextStatus);
+    });
+
+    database.getStatus()
+      .then((nextStatus) => {
+        if (mounted) setStatus(nextStatus);
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setStatus({
+          phase: 'error',
+          ready: false,
+          message: error?.message || '读取本地数据库状态失败',
+        });
+      });
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+  const ready = status?.ready === true || status?.phase === 'ready';
+  const failed = status?.phase === 'error';
+
+  useEffect(() => {
+    if (ready) {
+      setShowGate(false);
+      return undefined;
+    }
+    if (failed) {
+      setShowGate(true);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setShowGate(true), 150);
+    return () => window.clearTimeout(timer);
+  }, [failed, ready]);
+
+  if (ready) {
+    return <>{children}</>;
+  }
+
+  if (!showGate) {
+    return null;
+  }
+
+  const title = status ? phaseLabels[status.phase] : '正在准备本地数据库';
+  const message = status?.message || '正在检查并升级本地数据库，请稍候';
+  const showReleaseLink = failed && message.includes(DATABASE_VERSION_TOO_NEW_MARKER);
+
+  return (
+    <div className="workspace-database-gate" role="status" aria-live="polite">
+      <div className="workspace-database-card">
+        <div className={failed ? 'workspace-database-mark is-error' : 'workspace-database-mark'}>
+          {failed ? '!' : <span />}
+        </div>
+        <div className="workspace-database-copy">
+          <p className="workspace-database-eyebrow">本地工作区</p>
+          <h1>{title}</h1>
+          <p>{message}</p>
+          {!failed && <small>完成前请不要关闭应用，数据库就绪后会自动进入工作台。</small>}
+          {failed && <small>请重启应用重试；如果仍然失败，请联系技术支持并保留错误信息。</small>}
+          {showReleaseLink && (
+            <div className="workspace-database-actions">
+              <button type="button" className="primary-action" onClick={openReleasePage}>下载新版客户端</button>
+              <span>将打开当前自动更新渠道的新版下载地址，请下载并安装新版客户端后重试。</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default WorkspaceDatabaseGate;

@@ -1,0 +1,47 @@
+{
+  "name": "openbidkit-yibiao-web-client",
+  "version": "2.0.0",
+  "private": true,
+  "description": "基于 OpenBidKit_Yibiao 二次开发的 React Web 客户端",
+  "author": "mark / yibiaoai; Web modifications by jdcome",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdcome/OpenBidKit-Yibiao-Web.git",
+    "directory": "client"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "dev:web": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "build:web": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --host 0.0.0.0 --port 4173"
+  },
+  "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-toast": "^1.2.15",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tanstack/react-query": "^5.62.0",
+    "axios": "^1.7.9",
+    "markdown-it": "^14.2.0",
+    "markdown-it-cjk-friendly": "^2.0.2",
+    "markdown-it-task-lists": "^1.0.2",
+    "mermaid": "^11.14.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
+  }
+}

@@ -1,0 +1,166 @@
+/* 登录/注册页：全屏居中白卡，沿用应用设计令牌与面板/输入/按钮词汇，
+ * 与仪表盘、用户管理等特性保持同一浅色主题。 */
+
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+  background: var(--yb-bg);
+  background-image: radial-gradient(circle at 50% 0%, rgba(33, 116, 253, 0.08), var(--yb-bg) 55%);
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(420px, 100%);
+  padding: 36px 32px;
+  background: var(--yb-surface);
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 26px;
+  box-shadow: var(--yb-shadow-lg);
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.login-brand img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.login-brand h2 {
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.login-brand p {
+  margin: 0;
+  color: var(--yb-text-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.login-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--yb-border-soft);
+}
+
+.login-tab {
+  position: relative;
+  padding: 11px 16px;
+  color: var(--yb-text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease;
+}
+
+.login-tab:hover {
+  color: var(--yb-text-soft);
+}
+
+.login-tab.is-active {
+  color: var(--yb-primary);
+  border-bottom-color: var(--yb-primary);
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.login-field input {
+  padding: 11px 14px;
+  color: var(--yb-text);
+  font-size: 13.5px;
+  font-weight: 400;
+  background: #fbfcff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 14px;
+  outline: none;
+  transition: background var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease,
+    box-shadow var(--yb-duration-fast) ease;
+}
+
+.login-field input::placeholder {
+  color: var(--yb-text-muted);
+  font-weight: 400;
+}
+
+.login-field input:focus {
+  background: #ffffff;
+  border-color: rgba(33, 116, 253, 0.38);
+  box-shadow: 0 0 0 4px rgba(33, 116, 253, 0.08);
+}
+
+.login-message {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.login-message.is-error {
+  color: #c83220;
+}
+
+.login-message.is-success {
+  color: #168a4a;
+}
+
+.login-submit {
+  width: 100%;
+  margin-top: 2px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 15px;
+}
+
+.open-source-notice.is-login {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+  padding-top: 14px;
+  color: var(--yb-text-muted);
+  font-size: 11px;
+  line-height: 1.55;
+  text-align: center;
+  border-top: 1px solid var(--yb-border-soft);
+}
+
+.open-source-notice.is-login a {
+  color: var(--yb-primary);
+  text-decoration: none;
+}
+
+.open-source-notice.is-login a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 22px;
+    border-radius: 22px;
+  }
+}

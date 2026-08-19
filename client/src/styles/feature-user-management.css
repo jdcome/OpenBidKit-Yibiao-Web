@@ -1,0 +1,331 @@
+/* 用户管理页：注册审批 + 状态切换 + 编辑账号。沿用应用设计令牌与既有面板/表格/弹窗词汇，
+ * 与仪表盘、格式管理等特性保持同一视觉语言。 */
+
+.user-mgmt-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 28px;
+}
+
+.user-mgmt-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+/* 页头 */
+.user-mgmt-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-mgmt-head-text {
+  display: grid;
+  gap: 8px;
+}
+
+.user-mgmt-head h2 {
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.user-mgmt-head p {
+  margin: 0;
+  color: var(--yb-text-soft);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.user-mgmt-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  color: #b26a00;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(242, 138, 0, 0.1);
+  border: 1px solid rgba(242, 138, 0, 0.22);
+  border-radius: 999px;
+}
+
+/* Tabs */
+.user-mgmt-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--yb-border-soft);
+}
+
+.user-mgmt-tab {
+  position: relative;
+  padding: 11px 16px;
+  color: var(--yb-text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease;
+}
+
+.user-mgmt-tab:hover {
+  color: var(--yb-text-soft);
+}
+
+.user-mgmt-tab.is-active {
+  color: var(--yb-primary);
+  border-bottom-color: var(--yb-primary);
+}
+
+/* 用户表（镜像 .bid-analysis-json-table） */
+.user-mgmt-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--yb-text);
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.user-mgmt-table th,
+.user-mgmt-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.user-mgmt-table thead th {
+  color: var(--yb-text-soft);
+  font-weight: 800;
+  font-size: 12.5px;
+  background: #f6f9ff;
+  border-bottom: 1px solid var(--yb-border-soft);
+}
+
+.user-mgmt-table tbody tr + tr td {
+  border-top: 1px solid var(--yb-border-soft);
+}
+
+.user-mgmt-table tbody tr {
+  transition: background var(--yb-duration-fast) ease;
+}
+
+.user-mgmt-table tbody tr:hover {
+  background: rgba(33, 116, 253, 0.035);
+}
+
+.user-mgmt-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* 状态药丸 */
+.user-mgmt-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.user-mgmt-empty {
+  padding: 36px 24px;
+  text-align: center;
+  color: var(--yb-text-muted);
+  font-size: 13.5px;
+}
+
+/* 编辑账号弹窗（镜像 .template-delete-dialog，白卡 + Radix） */
+.edit-user-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(720px, calc(100vh - 40px));
+  gap: 14px;
+  padding: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 24px;
+  box-shadow: 0 24px 72px rgba(15, 23, 42, 0.22);
+  transform: translate(-50%, -50%);
+}
+
+.edit-user-dialog[data-state='open'] {
+  animation: edit-user-dialog-in var(--yb-duration) var(--yb-ease);
+}
+
+@keyframes edit-user-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.edit-user-dialog h2,
+.edit-user-dialog [data-radix-dialog-title] {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--yb-text);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.edit-user-dialog-sub {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--yb-text-muted);
+  font-size: 12.5px;
+}
+
+.edit-user-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.user-mgmt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.user-mgmt-field input,
+.user-mgmt-field select {
+  padding: 11px 14px;
+  color: var(--yb-text);
+  font-size: 13.5px;
+  font-weight: 400;
+  background: #fbfcff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 14px;
+  outline: none;
+  transition: background var(--yb-duration-fast) ease, border-color var(--yb-duration-fast) ease,
+    box-shadow var(--yb-duration-fast) ease;
+}
+
+.user-mgmt-field input:focus,
+.user-mgmt-field select:focus {
+  background: #ffffff;
+  border-color: rgba(33, 116, 253, 0.38);
+  box-shadow: 0 0 0 4px rgba(33, 116, 253, 0.08);
+}
+
+.user-mgmt-field select {
+  padding-right: 42px;
+}
+
+.user-mgmt-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #f6f9ff;
+  border: 1px solid var(--yb-border-soft);
+  border-radius: 14px;
+}
+
+.user-mgmt-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.user-mgmt-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--yb-primary);
+  cursor: pointer;
+}
+
+.user-mgmt-checkbox.is-disabled {
+  color: var(--yb-text-muted);
+  cursor: not-allowed;
+}
+
+.user-mgmt-checkbox.is-disabled input {
+  cursor: not-allowed;
+}
+
+.user-mgmt-checkbox small {
+  color: var(--yb-text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.user-mgmt-checkbox-title {
+  color: var(--yb-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.user-mgmt-checkbox-hint {
+  margin: 0;
+  color: var(--yb-text-muted);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.user-mgmt-perm {
+  max-width: 200px;
+  color: var(--yb-text-soft);
+  font-size: 12.5px;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.user-mgmt-dialog-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 860px) {
+  .user-mgmt-page {
+    padding: 18px;
+  }
+
+  .user-mgmt-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}

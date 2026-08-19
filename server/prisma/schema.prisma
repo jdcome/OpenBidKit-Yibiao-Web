@@ -1,0 +1,1130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// M0 仅 User 表（登录验证）。M1 起把 electron/services/sqliteDatabase.cjs 的
+// technical_plan_* / knowledge_* / duplicate_check_* / rejection_check_* 等表族迁过来。
+model User {
+  id                 Int              @id @default(autoincrement())
+  username           String           @unique
+  password           String
+  displayName        String?
+  role               String           @default("user") // admin / user
+  phone              String?          @unique
+  department         String?
+  status             String           @default("pending") // pending / active / disabled
+  // 授予的功能模块 section id 的 JSON 字符串数组（仅对普通用户生效；管理员忽略，拥有全部权限）。
+  // 取值见 server/src/auth/permissions.ts ASSIGNABLE_MODULE_IDS。默认 "[]" = 仅默认开放模块。
+  modules            String           @default("[]")
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userConfig         UserConfig?
+  exportTemplates    ExportTemplate[]
+  projects           Project[]
+  feedbacks          Feedback[]
+  feedbackReplies    FeedbackReply[]
+  docsArticles       DocsArticle[]
+
+  @@map("users")
+}
+
+// 项目（多项目重构对标 92）。每个用户可拥有多个项目；工作区数据按 projectId 分区。
+model Project {
+  id          Int      @id @default(autoincrement())
+  projectCode String   @unique // "XM2026-0001"，服务端生成
+  name        String
+  description String   @default("")
+  bidderName  String?  // 我方（投标方）公司全称，STEP 01 录入；正文代称替换 + 投标响应语气复用
+  subjectReplacements String? // 代称替换表 JSON（{fullname,synonyms[]}[]），STEP 04 编辑；落库前确定性替换
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  status         String    @default("active") // draft / active / submitted / completed
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastExportedAt DateTime? // 最近一次成功导出 Word 的时间；仪表盘进度判定用（正文完成+导出过=100%）
+
+  @@index([ownerId, updatedAt(sort: Desc)])
+  @@map("projects")
+}
+
+// 平台级配置（管理员维护，含真实 AI key）。单例行 id=1。
+model AppConfig {
+  id        Int      @id @default(1)
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("app_config")
+}
+
+// 个人偏好（按用户隔离）。data 仅存白名单字段（provider 选择/导出样式/开关等），不含 key。
+model UserConfig {
+  userId    Int      @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+
+  @@map("user_configs")
+}
+
+// 导出模板（按用户隔离）。每用户维护自己的 Word 导出格式预设。
+// templateId 由服务端生成（tpl-<uuid>），全局唯一。
+// 隔离：私有模板查询带 userId 防越权；isShared=true 的模板全员可读（创建者+admin 可改删）。
+// config 为完整模板配置对象（含 template_name），对应桌面 export_templates.config_json。
+model ExportTemplate {
+  templateId   String   @id
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateName String
+  config       Json
+  isShared     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([isShared])
+  @@map("export_templates")
+}
+
+// 问题反馈（按用户隔离；admin 可见全部）。images 为压缩后的 data-URL 数组（沿用 logoDataUrl 模式）。
+model Feedback {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  images    Json?
+  status    String           @default("open") // open / resolved / closed
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  replies   FeedbackReply[]
+
+  @@index([userId])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("feedbacks")
+}
+
+// 反馈回复（admin 或反馈提交者可回复）。
+model FeedbackReply {
+  id         Int      @id @default(autoincrement())
+  feedbackId Int
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String
+  images     Json?    // dataURL 数组（上限 4），与 Feedback.images 同模式
+  isAdmin    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([feedbackId, createdAt])
+  @@map("feedback_replies")
+}
+
+// 文档文章（管理员可在 UI 编辑：使用/配置/反馈常见问题）。
+// section: usage(使用) / config(配置) / faq(反馈-常见问题)。
+// 3 个顶级 tab 固定；每个 section 内的文章项可由 admin 新增/删除/排序/改标题+正文。
+// id：种子用固定 slug（usage-01 等），管理员新建走 cuid 默认。
+model DocsArticle {
+  id          String   @id @default(cuid())
+  section     String // 'usage' | 'config' | 'faq'
+  title       String
+  content     String   @default("")
+  sortOrder   Int      @default(0)
+  updatedById Int?
+  user        User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([section, sortOrder])
+  @@map("docs_articles")
+}
+
+// =============================================================================
+// technical_plan_* —— 技术方案（按项目隔离，projectId 分区）。
+// 多项目重构：分区键由 userId 改为 projectId；userId 作为可空归属列保留（不再写入/查询）。
+// 每个用户可拥有多个项目，projectId 通过 requireProject 解析（X-Project-Id 头）。
+// 时间戳一律 String(ISO-8601)，对齐桌面 TEXT 列，保留 ORDER BY 字典序=时间序。
+// =============================================================================
+
+// 技术方案元数据（每项目一行）。原 singleton PK=userId → Web 多项目 PK=projectId。
+model TechnicalPlanMeta {
+  projectId                       Int    @id
+  userId                          Int?
+  workflowKind                   String @default("technical-plan")
+  step                           String @default("document-analysis")
+  tenderFileName                 String?
+  tenderMarkdownPath             String?
+  tenderMarkdownHash             String?
+  tenderMarkdownChars            Int    @default(0)
+  tenderParserLabel              String?
+  tenderImportedAt               String?
+  tenderFilesJson                Json?
+  tenderOriginalMarkdownPath     String?
+  tenderOriginalMarkdownHash     String?
+  tenderOriginalMarkdownChars    Int    @default(0)
+  originalPlanFileName           String?
+  originalPlanMarkdownPath       String?
+  originalPlanMarkdownHash       String?
+  originalPlanMarkdownChars      Int    @default(0)
+  originalPlanParserLabel        String?
+  originalPlanImportedAt         String?
+  pendingTenderMarkdownPath      String?
+  pendingTenderFileName          String?
+  pendingTenderParserLabel       String?
+  pendingTenderSectionsJson      Json?
+  pendingTenderTotalDeclared     Int?
+  bidAnalysisMode                String @default("key")
+  bidAnalysisSelectedTaskIdsJson Json?
+  bidSectionMode                 String @default("single")
+  bidSectionsJson                Json?
+  bidSectionExtractionStatus     String @default("idle")
+  bidSectionExtractionError      String?
+  outlineMode                    String @default("aligned")
+  outlineExpansionMode           String @default("ai-complement")
+  mirrorProcurementEnabled       Boolean @default(true)
+  outlineWordControlOptionsJson  Json?
+  outlineWordControlSnapshotJson Json?
+  outlineProjectName             String?
+  outlineProjectOverview         String?
+  contentGenerationOptionsJson   Json?
+  contentGenerationRuntimeJson   Json?
+  contentIllustrationPlanJson    Json?
+  selectedSectionId              String?
+  selectedSectionTitle           String?
+  selectedSectionHeadLine        String?
+  createdAt                      String
+  updatedAt                      String
+
+  @@map("technical_plan_meta")
+}
+
+// 技术方案异步任务（每项目按 type 一条）。复合主键 (projectId, type)。
+model TechnicalPlanTask {
+  projectId      Int
+  userId         Int?
+  type           String
+  taskId         String
+  status         String
+  progress       Int  @default(0)
+  logsJson       Json?
+  statsJson      Json?
+  error          String?
+  pauseRequested Int  @default(0)
+  startedAt      String
+  updatedAt      String
+
+  @@id([projectId, type])
+  @@map("technical_plan_tasks")
+}
+
+// 技术方案评分项（投标清单条目，按项目隔离）。itemId 为固定规范集（projectOverview 等），
+// 跨项目重复，故复合主键 (projectId, itemId)。
+model TechnicalPlanBidItem {
+  projectId Int
+  userId    Int?
+  itemId    String
+  label     String
+  status    String
+  content   String @default("")
+  error     String?
+  sortOrder Int    @default(0)
+  updatedAt String
+
+  @@id([projectId, itemId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("technical_plan_bid_items")
+}
+
+// 技术方案参考文档（按项目隔离）。documentId 指向公司共享知识库文档，跨项目重复，
+// 故复合主键 (projectId, documentId)。
+model TechnicalPlanReferenceDoc {
+  projectId  Int
+  userId     Int?
+  documentId String
+  sortOrder  Int    @default(0)
+
+  @@id([projectId, documentId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("technical_plan_reference_docs")
+}
+
+// 技术方案大纲节点（自引用树，按项目隔离）。parentNodeId 为普通列（P3 处理级联）。
+// nodeId 跨项目不保证唯一，复合主键 (projectId, nodeId)。
+model TechnicalPlanOutlineNode {
+  projectId             Int
+  userId                Int?
+  nodeId                String
+  parentNodeId          String?
+  sortOrder             Int
+  level                 Int
+  title                 String
+  description           String @default("")
+  sourceRequirementId    String?
+  sourceRequirementTitle String?
+  knowledgeItemIdsJson   Json?
+  content                String @default("")
+  isMirror               Boolean @default(false)
+  mirrorSourceText       String?
+  outlineAttribute       String?
+  contentMode            String @default("ai-generate")
+  contentModeNote        String?
+  createdAt              String
+  updatedAt              String
+
+  @@id([projectId, nodeId])
+  @@index([projectId])
+  @@index([parentNodeId, sortOrder])
+  @@index([level])
+  @@map("technical_plan_outline_nodes")
+}
+
+// 技术方案章节生成状态（nodeId 一对一，按项目隔离）。复合主键 (projectId, nodeId)。
+model TechnicalPlanContentSection {
+  projectId Int
+  userId    Int?
+  nodeId    String
+  status    String @default("idle")
+  error     String?
+  updatedAt String
+
+  @@id([projectId, nodeId])
+  @@index([projectId])
+  @@index([status])
+  @@map("technical_plan_content_sections")
+}
+
+// 技术方案章节生成计划（nodeId 一对一，按项目隔离）。复合主键 (projectId, nodeId)。
+model TechnicalPlanContentPlan {
+  projectId Int
+  userId    Int?
+  nodeId    String
+  planJson  Json
+  updatedAt String
+
+  @@id([projectId, nodeId])
+  @@index([projectId])
+  @@map("technical_plan_content_plans")
+}
+
+// 技术方案全局事实分组（按项目隔离）。groupId 由标题归一化生成，跨项目重复，
+// 复合主键 (projectId, groupId)。
+model TechnicalPlanGlobalFactGroup {
+  projectId Int
+  userId    Int?
+  groupId   String
+  title     String
+  content   String @default("")
+  sortOrder Int    @default(0)
+  createdAt String
+  updatedAt String
+
+  @@id([projectId, groupId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("technical_plan_global_fact_groups")
+}
+
+// =============================================================================
+// knowledge_* —— 知识库（全公司共享，无 userId）。
+// 参考材料天然协同：所有人共享同一套文件夹/文档/条目。桌面无 userId 列，Web 保持共享。
+// =============================================================================
+
+// 知识库迁移元数据（singleton id=1，记录从旧索引迁移的状态）。
+model KnowledgeMigrationMeta {
+  id                    Int    @id @default(1)
+  legacyIndexHash       String?
+  status                String @default("idle")
+  migratedFolderCount   Int    @default(0)
+  migratedDocumentCount Int    @default(0)
+  startedAt             String?
+  completedAt           String?
+  cleanupCompletedAt    String?
+  error                 String?
+
+  @@map("knowledge_migration_meta")
+}
+
+// 知识库文件夹（共享）。
+model KnowledgeFolder {
+  folderId  String @id
+  name      String
+  sortOrder Int    @default(0)
+  createdAt String
+  updatedAt String
+
+  @@index([sortOrder, createdAt])
+  @@map("knowledge_folders")
+}
+
+// 知识库文档（共享，属某文件夹）。
+model KnowledgeDocument {
+  documentId                     String @id
+  folderId                       String
+  fileName                       String
+  documentDir                    String
+  sourcePath                     String
+  markdownPath                   String
+  markdownHash                   String?
+  markdownChars                  Int    @default(0)
+  sourceExtension                String?
+  status                         String
+  progress                       Int    @default(0)
+  message                        String @default("")
+  error                          String?
+  itemCount                      Int    @default(0)
+  blockCount                     Int    @default(0)
+  filteredBlockCount             Int    @default(0)
+  candidateItemCount             Int    @default(0)
+  discardedBlockCount            Int    @default(0)
+  systemDiscardedAfterRetryCount Int    @default(0)
+  lastBatchSize                  Int?
+  parserLabel                    String?
+  sortOrder                      Int    @default(0)
+  createdAt                      String
+  updatedAt                      String
+
+  @@index([folderId, sortOrder, createdAt])
+  @@index([status])
+  @@map("knowledge_documents")
+}
+
+// 知识库文档块（共享）。(documentId, blockId, isFiltered) 唯一：同一块可同时存过滤/未过滤两行。
+model KnowledgeBlock {
+  id              Int    @id @default(autoincrement())
+  documentId      String
+  blockId         String
+  type            String
+  headingPathJson Json?
+  content         String
+  contentChars    Int    @default(0)
+  isFiltered      Int    @default(0)
+  filterReason    String?
+  sortOrder       Int    @default(0)
+
+  @@unique([documentId, blockId, isFiltered])
+  @@index([documentId, isFiltered, sortOrder])
+  @@index([documentId, blockId])
+  @@map("knowledge_blocks")
+}
+
+// 知识库候选条目（共享，AI 抽取候选）。
+model KnowledgeCandidateItem {
+  id         Int     @id @default(autoincrement())
+  documentId String
+  itemId     String
+  title      String
+  summary    String
+  source     String?
+  sortOrder  Int     @default(0)
+  createdAt  String
+  updatedAt  String
+
+  @@unique([documentId, itemId])
+  @@index([documentId, sortOrder])
+  @@map("knowledge_candidate_items")
+}
+
+// 知识库正式条目（共享，最终保留的参考条目）。
+model KnowledgeItem {
+  id           Int     @id @default(autoincrement())
+  documentId   String
+  itemId       String
+  title        String
+  resume       String
+  content      String
+  sourceFile   String?
+  contentChars Int     @default(0)
+  sortOrder    Int     @default(0)
+  createdAt    String
+  updatedAt    String
+
+  @@unique([documentId, itemId])
+  @@index([documentId, sortOrder])
+  @@index([title])
+  @@map("knowledge_items")
+}
+
+// 知识库条目↔块关联（共享）。
+model KnowledgeItemBlock {
+  id         Int    @id @default(autoincrement())
+  documentId String
+  itemId     String
+  blockId    String
+  sortOrder  Int    @default(0)
+
+  @@unique([documentId, itemId, blockId])
+  @@index([documentId, itemId, sortOrder])
+  @@index([documentId, blockId])
+  @@map("knowledge_item_blocks")
+}
+
+// 知识库被丢弃的块分组（共享，记录抽取过程丢弃原因）。
+model KnowledgeDiscardedGroup {
+  groupId      Int    @id @default(autoincrement())
+  documentId   String
+  source       String
+  reason       String
+  blockIdsJson Json
+  sortOrder    Int    @default(0)
+
+  @@index([documentId, source, sortOrder])
+  @@map("knowledge_discarded_groups")
+}
+
+// 知识库文档处理报告（共享，documentId 一对一）。
+model KnowledgeReport {
+  documentId                     String @id
+  totalBlocks                    Int    @default(0)
+  filteredBlocksCount            Int    @default(0)
+  candidateItemsCount            Int    @default(0)
+  finalItemsCount                Int    @default(0)
+  matchedBlocksCount             Int    @default(0)
+  discardedBlocksCount           Int    @default(0)
+  systemDiscardedAfterRetryCount Int    @default(0)
+  newItemsFromRecoveryCount      Int    @default(0)
+  recoveryAttemptCount           Int    @default(0)
+  batchSize                      Int    @default(20)
+  coverageRate                   Float  @default(0)
+  matchedRate                    Float  @default(0)
+  createdAt                      String
+
+  @@map("knowledge_reports")
+}
+
+// 知识库文档处理步骤（共享，复合主键 documentId+stepKey）。
+model KnowledgeDocumentStep {
+  documentId  String
+  stepKey     String
+  status      String @default("idle")
+  resultJson  Json?
+  error       String?
+  startedAt   String?
+  completedAt String?
+  updatedAt   String
+
+  @@id([documentId, stepKey])
+  @@index([documentId, status])
+  @@map("knowledge_document_steps")
+}
+
+// 知识库匹配批次（共享，复合主键 documentId+batchIndex）。
+model KnowledgeMatchBatch {
+  documentId  String
+  batchIndex  Int
+  status      String @default("idle")
+  itemIdsJson Json   @default("[]")
+  matchesJson Json?
+  error       String?
+  startedAt   String?
+  completedAt String?
+  updatedAt   String
+
+  @@id([documentId, batchIndex])
+  @@index([documentId, status, batchIndex])
+  @@map("knowledge_match_batches")
+}
+
+// =============================================================================
+// asset_items —— 资产/资质库（全公司共享，无 userId）。
+// 工具模板库(tool)/公司资质库(company)/人员资质库(personnel)共用此表，library 字段区分。
+// files 存 [{fileId, originalName, mimeType, size, ext}] JSON；expiryDate 为空表示不提醒（工具库典型留空）。
+// =============================================================================
+
+model AssetItem {
+  id         String    @id @default(cuid())
+  library    String
+  name       String
+  notes      String    @default("")
+  files      Json      @default("[]")
+  expiryDate DateTime?
+  tags       String[]  @default([])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([library, expiryDate])
+  @@unique([id, library])
+  @@map("asset_items")
+}
+
+// =============================================================================
+// personnel_profiles / personnel_certificates —— 人员资质库（一人多证）。
+// 人物档案 1 → N 证书；每本证书独立 certName/certType/expiryDate/files。
+// 仅人员资质库使用；公司/工具库继续用 asset_items。公司共享（无 userId）。
+// =============================================================================
+
+model PersonnelProfile {
+  id           String   @id @default(cuid())
+  name         String
+  department   String   @default("")
+  position     String   @default("")
+  phone        String   @default("")
+  notes        String   @default("")
+  tags         String[] @default([])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  certificates PersonnelCertificate[]
+
+  @@map("personnel_profiles")
+}
+
+model PersonnelCertificate {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    PersonnelProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  certName   String
+  certType   String   @default("")
+  files      Json     @default("[]")
+  expiryDate DateTime?
+  obtainedAt DateTime?
+  notes      String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([profileId, expiryDate])
+  @@map("personnel_certificates")
+}
+
+// =============================================================================
+// duplicate_check_* —— 标书查重（按项目隔离，共 14 表；多项目重构分区键=projectId）。
+// =============================================================================
+
+// 查重元数据（每项目一行）。PK=projectId。
+model DuplicateCheckMeta {
+  projectId          Int    @id
+  userId             Int?
+  step               String @default("upload")
+  activeAnalysisTab  String @default("metadata")
+  currentSignature   String?
+  createdAt          String
+  updatedAt          String
+
+  @@map("duplicate_check_meta")
+}
+
+// 查重文件（按项目隔离）。
+model DuplicateCheckFile {
+  projectId   Int
+  userId      Int?
+  fileId      String  @id
+  role        String
+  fileName    String
+  filePath    String
+  extension   String
+  size        Int     @default(0)
+  modifiedAt  String?
+  sortOrder   Int     @default(0)
+  contentHash String?
+  createdAt   String
+  updatedAt   String
+
+  @@index([projectId])
+  @@index([role, sortOrder])
+  @@map("duplicate_check_files")
+}
+
+// 查重异步任务（每项目按 type 一条）。
+model DuplicateCheckTask {
+  projectId        Int
+  userId           Int?
+  type             String
+  taskId           String
+  status           String
+  progress         Int     @default(0)
+  logsJson         Json?
+  statsJson        Json?
+  error            String?
+  payloadSignature String?
+  startedAt        String
+  updatedAt        String
+
+  @@id([projectId, type])
+  @@map("duplicate_check_tasks")
+}
+
+// 查重分析分区状态（每项目按 section 一条）。
+model DuplicateCheckAnalysisSection {
+  projectId Int
+  userId    Int?
+  section   String
+  status    String
+  progress  Int     @default(0)
+  message   String  @default("")
+  signature String?
+  statsJson Json?
+  startedAt String?
+  updatedAt String
+
+  @@id([projectId, section])
+  @@map("duplicate_check_analysis_sections")
+}
+
+// 查重文件解析内容（fileId 一对一，按项目隔离）。
+model DuplicateCheckContentFile {
+  projectId     Int
+  userId        Int?
+  fileId        String  @id
+  status        String
+  contentPath   String?
+  contentLength Int     @default(0)
+  parserLabel   String?
+  error         String?
+  updatedAt     String
+
+  @@index([projectId])
+  @@index([status])
+  @@map("duplicate_check_content_files")
+}
+
+// 查重文件元数据项（按项目隔离）。UNIQUE(fileId, key)。
+model DuplicateCheckMetadataItem {
+  id             Int     @id @default(autoincrement())
+  projectId      Int
+  userId         Int?
+  fileId         String
+  key            String
+  label          String
+  value          String  @default("")
+  normalized     String?
+  dateDay        String?
+  comparable     Int     @default(0)
+  dateComparable Int     @default(0)
+  sortOrder      Int     @default(0)
+
+  @@unique([fileId, key])
+  @@index([projectId])
+  @@index([fileId, sortOrder])
+  @@index([key])
+  @@map("duplicate_check_metadata_items")
+}
+
+// 查重大纲条目（自引用树，按项目隔离）。
+model DuplicateCheckOutlineItem {
+  projectId             Int
+  userId                Int?
+  itemId                String @id
+  fileId                String
+  parentItemId          String?
+  level                 Int
+  number                String?
+  title                 String
+  normalizedTitle       String
+  pathTitlesJson        Json
+  normalizedPath        String
+  source                String
+  confidence            Float  @default(0)
+  sortOrder             Int    @default(0)
+  fromTender            Int    @default(0)
+  matchedTenderSentence String?
+
+  @@index([projectId])
+  @@index([fileId, sortOrder])
+  @@index([normalizedTitle, normalizedPath])
+  @@map("duplicate_check_outline_items")
+}
+
+// 查重大纲分组（按项目隔离）。
+model DuplicateCheckOutlineGroup {
+  projectId    Int
+  userId       Int?
+  groupId      String @id
+  type         String
+  title        String
+  score        Float  @default(0)
+  fileIdsJson  Json
+  itemIdsJson  Json
+  pathsJson    Json
+  sortOrder    Int    @default(0)
+
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("duplicate_check_outline_groups")
+}
+
+// 查重大纲两两比对（按项目隔离）。UNIQUE(fileAId, fileBId)。
+model DuplicateCheckOutlinePairwise {
+  id               Int    @id @default(autoincrement())
+  projectId        Int
+  userId           Int?
+  fileAId          String
+  fileBId          String
+  score            Float  @default(0)
+  titleOverlap     Float  @default(0)
+  pathOverlap      Float  @default(0)
+  orderSimilarity  Float  @default(0)
+  sharedCount      Int    @default(0)
+  risk             String @default("none")
+
+  @@unique([fileAId, fileBId])
+  @@index([projectId])
+  @@index([score])
+  @@map("duplicate_check_outline_pairwise")
+}
+
+// 查重内容重复句（按项目隔离）。
+model DuplicateCheckContentDuplicate {
+  projectId   Int
+  userId      Int?
+  duplicateId String @id
+  sentence    String
+  normalized  String
+  fileIdsJson Json
+  firstOrder  Int    @default(0)
+
+  @@index([projectId])
+  @@index([firstOrder])
+  @@map("duplicate_check_content_duplicates")
+}
+
+// 查重内容重复句出现位置（按项目隔离）。UNIQUE(duplicateId, fileId)。
+model DuplicateCheckContentOccurrence {
+  id              Int    @id @default(autoincrement())
+  projectId       Int
+  userId          Int?
+  duplicateId     String
+  fileId          String
+  occurrenceCount Int    @default(0)
+
+  @@unique([duplicateId, fileId])
+  @@index([projectId])
+  @@index([fileId])
+  @@map("duplicate_check_content_occurrences")
+}
+
+// 查重图片解析状态（fileId 一对一，按项目隔离）。
+model DuplicateCheckImageFile {
+  projectId        Int
+  userId           Int?
+  fileId           String  @id
+  status           String
+  imageCount       Int     @default(0)
+  uniqueImageCount Int     @default(0)
+  error            String?
+  updatedAt        String
+
+  @@index([projectId])
+  @@map("duplicate_check_image_files")
+}
+
+// 查重重复图片（按项目隔离）。
+model DuplicateCheckDuplicateImage {
+  projectId   Int
+  userId      Int?
+  imageId     String @id
+  hash        String
+  previewUrl  String
+  fileIdsJson Json
+  sortOrder   Int    @default(0)
+
+  @@index([projectId])
+  @@index([hash])
+  @@index([sortOrder])
+  @@map("duplicate_check_duplicate_images")
+}
+
+// 查重图片出现位置（按项目隔离）。UNIQUE(imageId, fileId)。
+model DuplicateCheckImageOccurrence {
+  id              Int     @id @default(autoincrement())
+  projectId       Int
+  userId          Int?
+  imageId         String
+  fileId          String
+  occurrenceCount Int     @default(0)
+  locationsJson   Json?
+
+  @@unique([imageId, fileId])
+  @@index([projectId])
+  @@index([fileId])
+  @@map("duplicate_check_image_occurrences")
+}
+
+// =============================================================================
+// rejection_check_* —— 废标项检查（按项目隔离，共 8 表；多项目重构分区键=projectId）。
+// =============================================================================
+
+// 废标检查元数据（每项目一行）。PK=projectId。
+model RejectionCheckMeta {
+  projectId            Int    @id
+  userId               Int?
+  step                 String @default("documents")
+  activeDocumentTab    String @default("tender")
+  activeResultTab      String @default("analysis")
+  activeCheckResultTab String @default("rejection")
+  customCheckItems     String @default("")
+  checkOptionsJson     Json?
+  createdAt            String
+  updatedAt            String
+
+  @@map("rejection_check_meta")
+}
+
+// 废标检查文档（按项目隔离，多份投标文件：documentId=tender 或 bid-N）。
+model RejectionCheckDocument {
+  projectId     Int
+  userId        Int?
+  documentId    String
+  role          String
+  source        String
+  fileName      String
+  markdownPath  String
+  contentHash   String
+  contentChars  Int     @default(0)
+  parserLabel   String?
+  sortOrder     Int     @default(0)
+  importedAt    String
+  updatedAt     String
+
+  @@id([projectId, documentId])
+  @@index([projectId])
+  @@index([role, sortOrder])
+  @@map("rejection_check_documents")
+}
+
+// 废标检查异步任务（每项目按 type 一条）。
+model RejectionCheckTask {
+  projectId    Int
+  userId       Int?
+  type         String
+  taskId       String
+  status       String
+  progress     Int     @default(0)
+  logsJson     Json?
+  statsJson    Json?
+  error        String?
+  startedAt    String
+  updatedAt    String
+
+  @@id([projectId, type])
+  @@map("rejection_check_tasks")
+}
+
+// 废标检查招标要求抽取（每项目一行）。桌面 updated_at 可空 → Web updatedAt String?。
+model RejectionCheckExtraction {
+  projectId          Int     @id
+  userId             Int?
+  status             String  @default("idle")
+  content            String  @default("")
+  source             String?
+  tenderSignature    String?
+  error              String?
+  updatedAt          String?
+
+  @@map("rejection_check_extraction")
+}
+
+// 废标检查结果（每项目按 resultType 一条）。
+model RejectionCheckResult {
+  projectId         Int
+  userId            Int?
+  resultType        String
+  status            String  @default("idle")
+  inputSignature    String?
+  activeFindingId   String?
+  progressMessage   String?
+  error             String?
+  updatedAt         String?
+
+  @@id([projectId, resultType])
+  @@map("rejection_check_results")
+}
+
+// 废标风险点发现（按项目隔离）。
+model RejectionCheckRiskFinding {
+  projectId      Int
+  userId         Int?
+  findingId      String
+  bidDocumentId  String?
+  type           String
+  severity       String
+  title          String
+  summary        String
+  requirement    String
+  bidEvidence    String
+  riskReason     String
+  suggestion     String
+  sortOrder      Int    @default(0)
+  createdAt      String
+  updatedAt      String
+
+  @@id([projectId, findingId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@index([severity])
+  @@map("rejection_check_risk_findings")
+}
+
+// 废标错别字发现（按项目隔离）。
+model RejectionCheckTypoFinding {
+  projectId        Int
+  userId           Int?
+  findingId        String
+  bidDocumentId    String?
+  wrongText        String
+  correctText      String
+  originalExcerpt  String
+  reason           String
+  locationHint     String?
+  sortOrder        Int    @default(0)
+  createdAt        String
+  updatedAt        String
+
+  @@id([projectId, findingId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("rejection_check_typo_findings")
+}
+
+// 废标逻辑谬误发现（按项目隔离）。
+model RejectionCheckLogicFinding {
+  projectId      Int
+  userId         Int?
+  findingId      String
+  bidDocumentId  String?
+  title          String
+  originalText   String
+  locationHint   String
+  fallacyReason  String
+  suggestion     String
+  sortOrder      Int    @default(0)
+  createdAt      String
+  updatedAt      String
+
+  @@id([projectId, findingId])
+  @@index([projectId])
+  @@index([sortOrder])
+  @@map("rejection_check_logic_findings")
+}
+
+// =============================================================================
+// prompt_templates —— 提示词管理（全公司共享，admin 维护）。
+// 把招标解析 18 项 task prompt + 共用 system prompt + 废标检查 invalid_bid prompt
+// 从硬编码常量改为 DB 驱动（带硬编码兜底）。runnerKey 区分管线，itemKey 区分项；
+// isSystem 行（itemKey='__system__'）= 投标分析 system prompt。内置项 builtin=true 不可物理删除。
+// =============================================================================
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  runnerKey   String // 'bid-analysis' | 'rejection-check'
+  itemKey     String // 'projectOverview' | '__system__' | 'invalid_bid' | <自定义>
+  label       String
+  description String   @default("")
+  groupName   String   @default("") // 显示分组；自定义项='自定义'
+  output      String   @default("markdown") // 'markdown' | 'json'
+  required    Boolean  @default(false)
+  promptText  String // 完整 prompt 文本（JSON 项=展开后全文）
+  enabled     Boolean  @default(true)
+  builtin     Boolean  @default(true) // 内置项不可物理删除
+  isSystem    Boolean  @default(false) // bid-analysis system prompt 专用
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([runnerKey, itemKey])
+  @@index([runnerKey, enabled, sortOrder])
+  @@map("prompt_templates")
+}
+
+model AiDiagnosticRun {
+  traceId       String                @id
+  projectId     Int?
+  userId        Int?
+  taskId        String?
+  taskType      String?
+  operation     String
+  provider      String                @default("")
+  model         String                @default("")
+  requestMode   String                @default("")
+  status        String                @default("running")
+  stage         String                @default("request")
+  errorCode     String?
+  errorMessage  String?
+  degraded      Boolean               @default(false)
+  metadata      Json?
+  startedAt     DateTime              @default(now())
+  finishedAt    DateTime?
+  expiresAt     DateTime
+  attempts      AiDiagnosticAttempt[]
+
+  @@index([projectId, startedAt(sort: Desc)])
+  @@index([taskType, startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+  @@index([expiresAt])
+  @@map("ai_diagnostic_runs")
+}
+
+model AiDiagnosticAttempt {
+  id            String          @id @default(cuid())
+  traceId       String
+  run           AiDiagnosticRun @relation(fields: [traceId], references: [traceId], onDelete: Cascade)
+  attemptNo     Int
+  phase         String
+  stage         String
+  status        String          @default("running")
+  httpStatus    Int?
+  durationMs    Int?
+  requestChars  Int             @default(0)
+  requestMeta   Json?
+  responseChars Int             @default(0)
+  responseHash  String?
+  responseShape Json?
+  issues        Json?
+  responseFile  String?
+  createdAt     DateTime        @default(now())
+
+  @@index([traceId, createdAt])
+  @@map("ai_diagnostic_attempts")
+}
+
+model ResponseDeviationWorkspace {
+  projectId              Int      @id
+  userId                 Int?
+  status                 String   @default("empty")
+  extractorVersion       String   @default("2026-08-14-v1")
+  tenderHash             String   @default("")
+  selectedSectionId      String   @default("")
+  selectedSectionTitle   String   @default("")
+  templateTitle          String   @default("")
+  templateKind           String   @default("none")
+  templateSchemaJson     Json?
+  projectFieldsJson      Json?
+  sourceScopeJson        Json?
+  statsJson              Json?
+  generationTaskJson     Json?
+  orphanedRowsJson       Json?
+  confirmedAt            DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("response_deviation_workspaces")
+}
+
+model ResponseDeviationRow {
+  id                       String   @id @default(cuid())
+  projectId                Int
+  userId                   Int?
+  sortOrder                Int
+  sequenceNo               String
+  clauseNo                 String   @default("")
+  requirementTitle         String   @default("")
+  requirementMarkdown      String   @default("")
+  requirementPlainText     String   @default("")
+  sourceEvidenceJson       Json?
+  sourceFingerprint        String
+  aggregation              String   @default("numbered-clause")
+  confidence               String   @default("high")
+  responseText             String   @default("")
+  deviationStatus          String   @default("")
+  deviationExplanation     String   @default("")
+  notes                    String   @default("")
+  manualEdited             Boolean  @default(false)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([projectId, sortOrder])
+  @@index([projectId, sourceFingerprint])
+  @@map("response_deviation_rows")
+}
