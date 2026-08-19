@@ -1,25 +1,34 @@
 # OpenBidKit 易标 Web 版
 
-基于 [OpenBidKit_Yibiao](https://github.com/FB208/OpenBidKit_Yibiao) 二次开发的非官方社区 Web 版，提供 React + Fastify + Prisma + PostgreSQL 的多用户部署形态。
+基于 [OpenBidKit_Yibiao](https://github.com/FB208/OpenBidKit_Yibiao) 二次开发的非官方社区 Web 版，提供 React + Fastify + Prisma + PostgreSQL 的多用户部署形态。全新安装后的默认系统名称为“易标投标工具箱web版”，管理员可在 Web 端修改系统名称和 Logo。
 
 > 原作者：mark / yibiaoai。Web 二开贡献者：jdcome。本项目不是原作者的官方发布。
 
 [当前修改版源码](https://github.com/jdcome/OpenBidKit-Yibiao-Web) · [原始项目](https://github.com/FB208/OpenBidKit_Yibiao) · [GNU AGPL-3.0](LICENSE) · [NOTICE](NOTICE) · [归属说明](ATTRIBUTION.md)
 
-## 功能
+## 功能介绍
 
-- 仪表盘与多项目管理
-- 标书生成、投标计算器、格式管理、标书检查与使用文档
-- 企业知识库、工具库、公司资质库和人员资质库
-- 问题 FAQ 与使用文档
-- 用户注册、审批、角色与模块权限
-- 提示词管理
-- 默认系统名称“易标投标工具箱web版”，支持系统名称与 Logo 管理
-- Fastify API、Prisma schema、PostgreSQL 数据库
-- 后台任务、SSE 进度、文档解析和 Word 导出
-- Nginx + PM2 生产部署
+本仓库面向“可独立安装运行的 Web 版”整理，重点功能包括：
 
-完整说明见 [功能清单](docs/FEATURES.md) 与 [架构文档](docs/ARCHITECTURE.md)。
+- 仪表盘与多项目管理：展示项目统计、最近项目、资质到期提醒，并作为登录后的工作入口。
+- 标书生成：包含生成技术方案、已有方案扩写、投标计算器和响应与偏离表工作台。
+  - 生成技术方案：上传招标文件，解析招标内容，按步骤生成技术方案并导出 Word。
+  - 已有方案扩写：上传已有方案，在保留原方案真实可落地内容的基础上扩充和优化。
+  - 投标计算器：由原“商务标”入口调整而来，定位为“综合报价、技术、商务评分标准计算标书最终得分”；当前弹窗提示仍保持“正在开发中，敬请期待。”
+  - 响应与偏离表工作台：复用招标原文和分析结果，生成技术响应与偏离表，人工填写响应内容。
+- 格式管理：管理我的模板、新建导出模板、Word 排版和编号格式。
+- 知识库：方案模板库、工具模板库、公司资质库、人员资质库，支持素材和资质集中管理。
+- 标书检查：标书查重、废标项检查和响应完整性检查。
+- 使用文档：内置使用教程与配置说明，初次部署后可通过 seed 写入数据库，管理员可继续在线编辑。
+- 问题 FAQ：用户提交问题、图片附件，管理员回复并维护状态。
+- 用户管理：注册审批、启停账号、角色和模块权限。
+- 提示词管理：维护平台提示词，支持恢复默认。
+- 深色/浅色模式：登录后可在顶栏切换，选择会保存在浏览器本地。
+- 开源合规入口：登录页和应用界面保留原作者、原仓库、AGPL、NOTICE 和当前修改版源码链接。
+
+资源下载模块已从当前 Web 版菜单、权限授予范围和相关代码中移除，不再作为默认功能发布。
+
+完整说明见 [功能清单](docs/FEATURES.md)、[架构文档](docs/ARCHITECTURE.md) 与 [功能设计说明](docs/superpowers/specs/2026-08-19-web-module-branding-theme-docs-design.md)。
 
 ## 环境要求
 
@@ -54,6 +63,7 @@ pnpm install --frozen-lockfile
 pnpm exec prisma generate
 pnpm exec prisma db push
 pnpm run db:seed
+pnpm exec tsx prisma/seed-docs.ts
 pnpm run dev
 ```
 
@@ -87,7 +97,7 @@ npm run dev
 5. 确认系统进入应用，并确认 `admin/admin` 已无法再次登录；
 6. 在将服务暴露到不受信任的网络前完成以上步骤。
 
-重复运行 seed 不会重置已存在管理员的密码。
+重复运行 `pnpm run db:seed` 不会重置已存在管理员的密码。重复运行 `pnpm exec tsx prisma/seed-docs.ts` 会刷新内置使用文档标题与正文，但不会覆盖管理员手动调整过的排序。
 
 ## 生产部署
 

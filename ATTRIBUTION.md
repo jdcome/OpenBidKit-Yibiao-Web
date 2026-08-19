@@ -17,6 +17,8 @@
 - 二开贡献者：jdcome
 - 修改年份：2026
 - 修改版源码：https://github.com/jdcome/OpenBidKit-Yibiao-Web
-- 主要修改：Fastify + Prisma + PostgreSQL Web 服务端、多用户鉴权与模块权限、仪表盘、知识库、问题 FAQ、用户管理、提示词管理、系统名称与 Logo 设置，以及 Nginx + PM2 部署形态。
+- 主要修改：Fastify + Prisma + PostgreSQL Web 服务端、多用户鉴权与模块权限、首次管理员强制改密、仪表盘、知识库、问题 FAQ、用户管理、提示词管理、系统名称与 Logo 设置、深色/浅色主题、内置使用文档、投标计算器入口调整，以及 Nginx + PM2 部署形态。
+
+当前 Web 版已移除资源下载模块。该移除属于修改版功能范围调整，不改变原项目作者归属、原仓库链接、`LICENSE`、`NOTICE` 或 AGPL-3.0-only 授权声明。
 
 本修改版继续以 GNU AGPL-3.0-only 授权。它不是原作者的官方发布，也不代表原作者对本修改版提供担保或支持。
